@@ -1,3 +1,6 @@
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 public class PropertyAssessment implements Comparable<PropertyAssessment> {
@@ -17,6 +20,10 @@ public class PropertyAssessment implements Comparable<PropertyAssessment> {
         this.assessedValue = assessedValue;
         this.location = new Location(latitude, longitude);
         this.assessmentClass = new AssessmentClass(class1Percent, class2Percent, class3Percent, class1, class2, class3);
+    }
+
+    public PropertyAssessment(List<String> entry){
+        this( Integer.parseInt("0" + entry.get(0)), entry.get(1), Integer.parseInt("0" + entry.get(2)), entry.get(3), entry.get(4).charAt(0), Integer.parseInt("0" + entry.get(5)), entry.get(6), entry.get(7), Integer.parseInt("0" + entry.get(8)), Double.parseDouble(entry.get(9)), Double.parseDouble(entry.get(10)), Double.parseDouble("0" + entry.get(12)), Double.parseDouble("0" + entry.get(13)), Double.parseDouble("0" + entry.get(14)), entry.get(15), entry.get(16), entry.get(17) ) ;
     }
 
     //note: do not format this super specifically like the example prints, just do "item: value"
