@@ -1,16 +1,14 @@
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
 public class PropertyAssessment implements Comparable<PropertyAssessment> {
-    private int accountNumber; //unique identifier
-    private Address address;
-    private char garage;
-    private Neighbourhood neighbourhood;
-    private int assessedValue;
-    private Location location;
-    private AssessmentClass assessmentClass;
+    private final int accountNumber; //unique identifier
+    private final Address address;
+    private final char garage;
+    private final Neighbourhood neighbourhood;
+    private final int assessedValue;
+    private final Location location;
+    private final AssessmentClass assessmentClass;
 
     public PropertyAssessment(int accountNumber, String suite, int houseNumber, String streetName, char garage, int neighbourhoodID, String neighbourhood, String ward, int assessedValue, double latitude, double longitude, double class1Percent, double class2Percent, double class3Percent, String class1, String class2, String class3){
         this.accountNumber = accountNumber;

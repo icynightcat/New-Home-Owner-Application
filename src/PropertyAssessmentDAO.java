@@ -1,4 +1,3 @@
-import java.util.ArrayList;
 import java.util.List;
 
 public interface PropertyAssessmentDAO {
@@ -6,7 +5,7 @@ public interface PropertyAssessmentDAO {
     /**
      * searches PropertyAssessments for given account number and returns the property if it exists
      * @param accountNumber the account number of the property to search for
-     * @return a PropertyAssessment of the property with the given account number (or null if it doesnt exist)
+     * @return a PropertyAssessment of the property with the given account number (or null if it doesn't exist)
      */
     PropertyAssessment getByAccountNumber(int accountNumber);
 

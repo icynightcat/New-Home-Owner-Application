@@ -52,7 +52,7 @@ public class PropertyData {
         //read header
         String line;
 
-        line = reader.readLine(); //read first line to get rid of header
+        reader.readLine(); //read first line to get rid of header
 
         //iterate through file data
         while ((line = reader.readLine()) != null) {
@@ -60,7 +60,7 @@ public class PropertyData {
             //REF: https://stackoverflow.com/a/7488676
             List<String> entry = new ArrayList<>( Arrays.asList(line.split(",", 18)) );
 
-            //make propertyassessment
+            //make propertyAssessment
             //REF for handling parsing empty entries: https://stackoverflow.com/a/35507836
             this.properties.add( new PropertyAssessment( Integer.parseInt("0" + entry.get(0)), entry.get(1), Integer.parseInt("0" + entry.get(2)), entry.get(3), entry.get(4).charAt(0), Integer.parseInt("0" + entry.get(5)), entry.get(6), entry.get(7), Integer.parseInt("0" + entry.get(8)), Double.parseDouble(entry.get(9)), Double.parseDouble(entry.get(10)), Double.parseDouble("0" + entry.get(12)), Double.parseDouble("0" + entry.get(13)), Double.parseDouble("0" + entry.get(14)), entry.get(15), entry.get(16), entry.get(17) ) );
         }
@@ -122,7 +122,7 @@ public class PropertyData {
     /**
      * searches PropertyAssessments for given account number and returns the property if it exists
      * @param accountNo the account number of the property to search for
-     * @return a PropertyAssessment of the property with the given account number (or null if it doesnt exist)
+     * @return a PropertyAssessment of the property with the given account number (or null if it doesn't exist)
      */
     public PropertyAssessment getPropertyByAccount(String accountNo){
         for(PropertyAssessment property : getProperties()){

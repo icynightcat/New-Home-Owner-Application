@@ -4,7 +4,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 public class CsvPropertyAssessmentDAO implements PropertyAssessmentDAO {
@@ -43,7 +42,7 @@ public class CsvPropertyAssessmentDAO implements PropertyAssessmentDAO {
         //read header
         String line;
 
-        line = reader.readLine(); //read first line to get rid of header
+        reader.readLine(); //read first line to get rid of header
 
         //iterate through file data
         while ((line = reader.readLine()) != null) {
@@ -51,7 +50,7 @@ public class CsvPropertyAssessmentDAO implements PropertyAssessmentDAO {
             //REF: https://stackoverflow.com/a/7488676
             List<String> entry = new ArrayList<>( Arrays.asList(line.split(",", 18)) );
 
-            //make propertyassessment
+            //make propertyAssessment
             //REF for handling parsing empty entries: https://stackoverflow.com/a/35507836
             properties.add( new PropertyAssessment( Integer.parseInt("0" + entry.get(0)), entry.get(1), Integer.parseInt("0" + entry.get(2)), entry.get(3), entry.get(4).charAt(0), Integer.parseInt("0" + entry.get(5)), entry.get(6), entry.get(7), Integer.parseInt("0" + entry.get(8)), Double.parseDouble(entry.get(9)), Double.parseDouble(entry.get(10)), Double.parseDouble("0" + entry.get(12)), Double.parseDouble("0" + entry.get(13)), Double.parseDouble("0" + entry.get(14)), entry.get(15), entry.get(16), entry.get(17) ) );
         }

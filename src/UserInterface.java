@@ -2,7 +2,7 @@ import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.scene.layout.FlowPane;
-import javafx.stage.Stage;
+//import javafx.stage.Stage;
 
 public class UserInterface extends Application {
     public static void main(String[] args) {
