@@ -42,4 +42,9 @@ class NeighbourhoodTest {
     void getWard() {
         assertEquals("ward1", n1.getWard());
     }
+
+    @Test
+    void testToString() {
+        assertEquals(n1.toString(), n1.getNeighbourhood() + " (" + n1.getWard() + ")");
+    }
 }

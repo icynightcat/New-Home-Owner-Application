@@ -19,7 +19,15 @@ public class AssessmentClass {
 
     @Override
     public String toString() {
-        return "[" + class1 + " " + class1Percent + "%, " + class2 + " " + class2Percent + "%, " + class3 + " " + class3Percent + "%]";
+        String string = "[" + class1 + " " + class1Percent + "%";
+        if (class2Percent > 0) {
+            string = string.concat( ", " + class2 + " " + class2Percent + "%");
+        }
+        if (class3Percent > 0) {
+            string = string.concat(", " + class3 + " " + class3Percent + "%");
+        }
+        string = string.concat("]");
+        return string;
     }
 
     @Override

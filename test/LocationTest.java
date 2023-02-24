@@ -37,4 +37,9 @@ class LocationTest {
     void getLongitude() {
         assertEquals(-1.000, l3.getLongitude());
     }
+
+    @Test
+    void testToString() {
+        assertEquals(l1.toString(), "(" + l1.getLatitude() + ", " + l1.getLongitude() + ")");
+    }
 }

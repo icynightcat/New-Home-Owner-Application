@@ -75,4 +75,16 @@ class PropertyAssessmentTest {
         assertTrue(pa3.compareTo(pa1) > 0);
         assertThrows(NullPointerException.class, () -> pa1.compareTo(null));
     }
+
+    @Test
+    void testToString() {
+        String string = String.format("""
+                Account number = %s
+                Address = %s
+                Assessed value = $%,d
+                Assessment class = %s
+                Neighbourhood = %s
+                Location = %s""", pa1.getAccountNumber(), pa1.getAddress(), pa1.getAssessedValue(), pa1.getAssessmentClass(), pa1.getNeighbourhood(), pa1.getLocation());
+        assertEquals(pa1.toString(), string);
+    }
 }

@@ -24,6 +24,11 @@ class AddressTest {
     }
 
     @Test
+    void testToString() {
+        assertEquals(a1.toString(), a1.getSuite() + " " + a1.getHouseNumber() + " " + a1.getStreetName());
+    }
+
+    @Test
     void testHashCode() {
         assertEquals(a1.hashCode(), a2.hashCode());
     }
@@ -42,4 +47,6 @@ class AddressTest {
     void getStreetName() {
         assertEquals("street2", a3.getStreetName());
     }
+
+
 }

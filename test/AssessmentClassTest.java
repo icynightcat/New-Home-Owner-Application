@@ -56,4 +56,9 @@ class AssessmentClassTest {
     void getClass3() {
         assertEquals("class6", ac3.getClass3());
     }
+
+    @Test
+    void testToString() {
+        assertEquals(ac1.toString(), "[" + ac1.getClass1() + " " + ac1.getClass1Percent() + "%, " + ac1.getClass2() + " " + ac1.getClass2Percent() + "%, " + ac1.getClass3() + " " + ac1.getClass3Percent() + "%]");
+    }
 }
