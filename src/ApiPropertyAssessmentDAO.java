@@ -37,8 +37,10 @@ public class ApiPropertyAssessmentDAO implements PropertyAssessmentDAO {
     }
 
     public List<PropertyAssessment> getByNeighbourhood(String neighbourhood){
+        neighbourhood = neighbourhood.toUpperCase();
         String endpoint = "https://data.edmonton.ca/resource/q7d6-ambg.csv";
-        String url = endpoint + "?neighbourhood=" + neighbourhood;
+        String url = endpoint + "?neighbourhood='" + neighbourhood + "'";
+        url = url.replace(" ",  "+");
 
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder()
@@ -76,6 +78,8 @@ public class ApiPropertyAssessmentDAO implements PropertyAssessmentDAO {
         String endpoint = "https://data.edmonton.ca/resource/q7d6-ambg.csv";
         String url = endpoint + "?$where=mill_class_1 = '" + assessmentClass + "' OR mill_class_2 = '" + assessmentClass + "' OR mill_class_3 = '" + assessmentClass + "'";
         //csv?$where=mill_class_1 = 'FARMLAND' OR mill_class_2 = 'FARMLAND' or mill_class_3 = 'FARMLAND'
+
+        url = url.replace(" ", "+");
 
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder()

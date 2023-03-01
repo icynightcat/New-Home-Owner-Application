@@ -17,7 +17,7 @@ public class Lab5Main {
         PropertyAssessment property = dao2.getByAccountNumber(1103530);
         System.out.println(property);
 
-        List<PropertyAssessment> properties = dao2.getByNeighbourhood("DOWNTOWN");
+        List<PropertyAssessment> properties = dao2.getByNeighbourhood("jamieson place");
         System.out.println(properties.get(0));
 
         List<PropertyAssessment> propertiesByClass = dao2.getByAssessmentClass("FARMLAND");

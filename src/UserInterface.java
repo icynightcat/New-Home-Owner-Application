@@ -2,17 +2,25 @@ import javafx.application.Application;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.geometry.Insets;
 import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.TableColumn;
+import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
-import javafx.scene.layout.FlowPane;
-import javafx.scene.control.TableView;
+
 import java.io.IOException;
 import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.List;
+
+import static javafx.collections.FXCollections.observableArrayList;
 
 
 public class UserInterface extends Application {
@@ -23,38 +31,131 @@ public class UserInterface extends Application {
     @Override
     public void start(Stage primaryStage) throws IOException {
         primaryStage.setTitle("JavaFX Test");
-        FlowPane rootNode = new FlowPane();
-        Scene scene = new Scene(rootNode, 1250, 600);
+        BorderPane rootNode = new BorderPane();
+        Scene scene = new Scene(rootNode, 1000, 600);
         primaryStage.setScene(scene);
         primaryStage.show();
 
-        Label title = new Label("Edmonton Property Assessments");
-        title.setFont(new Font("Roboto", 16));
-        rootNode.getChildren().add(title);
+        //create VBox for left side menu
+        VBox menu = new VBox();
+        menu.setSpacing(5.0);
+        menu.setPadding(new Insets(5,5,5,5));
+        menu.setPrefWidth(220);
+        //REF: https://www.tabnine.com/code/java/methods/javafx.scene.layout.Pane/setBorder
+        menu.setBorder(new Border(new BorderStroke(Color.DIMGREY, BorderStrokeStyle.SOLID, null, null)));
+        //menu.setStyle("-fx-background-color: #ffd68a;");
 
-        ObservableList<PropertyAssessment> propertyDisplay = FXCollections.observableArrayList();
+        // Labels
+        Font roboto = Font.font("Roboto", FontWeight.BOLD, 16);
+        Font smallboto = new Font("Roboto", 14);
+        Label spacing = new Label("                   ");
+        Label spacing2 = new Label("                   ");
+        Label sourceLabel = new Label("Select Data Source");
+        sourceLabel.setFont(roboto);
+        Label paLabel = new Label("Find Property Assessment");
+        paLabel.setFont(roboto);
+        Label accNoLabel = new Label("Account Number:");
+        accNoLabel.setFont(smallboto);
+        Label addressLabel = new Label("Address:");
+        addressLabel.setFont(smallboto);
+        Label neighbourhoodLabel = new Label("Neighbourhood:");
+        neighbourhoodLabel.setFont(smallboto);
+        Label assessClassLabel = new Label("Assessment Class:");
+        assessClassLabel.setFont(smallboto);
+        Label assessValueLabel = new Label("Assessed Value Range:");
+        assessValueLabel.setFont(smallboto);
+
+        // Create combo boxes
+        String[] sources = { "CSV File", "API" };
+        ComboBox<String> sourceSelectBox = new ComboBox<>(FXCollections.observableArrayList(sources));
+        sourceSelectBox.setPrefWidth(150);
+        //String[] classes = dao.getAssessmentClasses(); // make it auto later
+        String[] classes = { "FARMLAND", "ETC." };
+        ComboBox<String> classSelectBox = new ComboBox<>(FXCollections.observableArrayList(classes));
+        classSelectBox.setPrefWidth(150);
+
+        //create input boxes
+        TextField acctNoField = new TextField();
+        TextField addressField = new TextField();
+        addressField.setPromptText("(#suite #house street)");
+        TextField neighbourhoodField = new TextField();
+        TextField minValueField = new TextField();
+        minValueField.setPromptText("Min Value");
+        minValueField.setPrefWidth(95);
+        TextField maxValueField = new TextField();
+        maxValueField.setPromptText("Max value");
+        maxValueField.setPrefWidth(95);
+
+        //create buttons
+        Button readDataButton = new Button("Read Data");
+        Button searchButton = new Button("Search");
+        searchButton.setPrefWidth(95);
+        Button resetButton = new Button("Reset");
+        resetButton.setPrefWidth(95);
+
+        //create flow pane for data source
+        VBox dataSource = new VBox();
+        dataSource.setPrefWidth(180);
+        dataSource.setSpacing(5.0);
+        dataSource.setPadding(new Insets(1,1,1,1));
+        dataSource.setBorder(new Border(new BorderStroke(Color.rgb(200,200,200), BorderStrokeStyle.SOLID, null, null)));
+        dataSource.getChildren().addAll(sourceLabel, sourceSelectBox, readDataButton);
+
+        //create flow pane for the simple/advanced search
+        VBox searchPane = new VBox();
+        searchPane.setPrefWidth(180);
+        searchPane.setSpacing(5.0);
+        searchPane.setPadding(new Insets(1,1,1,1));
+        searchPane.setBorder(new Border(new BorderStroke(Color.rgb(200, 200, 200), BorderStrokeStyle.SOLID, null, null)));
+        searchPane.getChildren().addAll(paLabel, accNoLabel, acctNoField,
+                addressLabel, addressField, neighbourhoodLabel,
+                neighbourhoodField, assessClassLabel, classSelectBox);
+
+        //create flow pane for the assessed value search
+        FlowPane valueSearchPane = new FlowPane();
+        valueSearchPane.setHgap(10);
+        valueSearchPane.setPrefWidth(180);
+        valueSearchPane.getChildren().addAll(assessValueLabel, minValueField, maxValueField, searchButton, resetButton);
+        valueSearchPane.setBorder(new Border(new BorderStroke(Color.rgb(200, 200, 200), BorderStrokeStyle.SOLID, null, null)));
+        valueSearchPane.setPadding(new Insets(1,1,1,1));
+
+        //add everything to the left menu
+        menu.getChildren().addAll(dataSource, spacing, searchPane, spacing2, valueSearchPane);
+        rootNode.setLeft(menu);
+
+        //create list to display property assessments
+        ObservableList<PropertyAssessment> propertyDisplay = observableArrayList();
 
         //get and add properties to the display list
-        PropertyAssessmentDAO apiDao = new ApiPropertyAssessmentDAO();
-        PropertyAssessment property = apiDao.getByAccountNumber(1103530);
-        propertyDisplay.add(property);
+        //PropertyAssessmentDAO apiDao = new ApiPropertyAssessmentDAO();
+        //PropertyAssessment property = apiDao.getByAccountNumber(1103530);
+        //propertyDisplay.add(property);
         PropertyAssessmentDAO dao = new CsvPropertyAssessmentDAO("Property_Assessment_Data_2022.csv");
         List<PropertyAssessment> properties = dao.getByAssessmentClass("FARMLAND");
         propertyDisplay.addAll(properties);
+
+
+        VBox center = new VBox();
+        Label title = new Label("Edmonton Property Assessments");
+        title.setFont(roboto);
+        center.getChildren().add(title);
 
         TableView<PropertyAssessment> table = new TableView<>();
         table.prefWidthProperty().bind(primaryStage.widthProperty());
         table.prefHeightProperty().bind(primaryStage.heightProperty());
         table.setItems(propertyDisplay);
 
-        rootNode.getChildren().add(table);
+        center.getChildren().add(table);
+        rootNode.setCenter(center);
 
         TableColumn<PropertyAssessment, Integer> idCol = new TableColumn<>("Account");
         idCol.setCellValueFactory(new PropertyValueFactory<>("accountNumber"));
+        idCol.setPrefWidth(80);
         table.getColumns().add(idCol);
 
         TableColumn<PropertyAssessment, Address> addressCol = new TableColumn<>("Address");
         addressCol.setCellValueFactory(new PropertyValueFactory<>("address"));
+        addressCol.setPrefWidth(150);
         table.getColumns().add(addressCol);
 
         NumberFormat currency = NumberFormat.getCurrencyInstance();
@@ -65,18 +166,22 @@ public class UserInterface extends Application {
             String formattedCost = currency.format(cellData.getValue().getAssessedValue());
             return new SimpleStringProperty(formattedCost);
         });
+        valueCol.setPrefWidth(80);
         table.getColumns().add(valueCol);
 
         TableColumn<PropertyAssessment, AssessmentClass> classCol = new TableColumn<>("Assessment Class");
         classCol.setCellValueFactory(new PropertyValueFactory<>("assessmentClass"));
+        classCol.setPrefWidth(200);
         table.getColumns().add(classCol);
 
         TableColumn<PropertyAssessment, Neighbourhood> neighbourhoodCol = new TableColumn<>("Neighbourhood");
         neighbourhoodCol.setCellValueFactory(new PropertyValueFactory<>("neighbourhood"));
+        neighbourhoodCol.setPrefWidth(200);
         table.getColumns().add(neighbourhoodCol);
 
         TableColumn<PropertyAssessment, Neighbourhood> locCol = new TableColumn<>("(Latitude, Longitude)");
         locCol.setCellValueFactory(new PropertyValueFactory<>("location"));
+        locCol.setPrefWidth(200);
         table.getColumns().add(locCol);
 
     }
