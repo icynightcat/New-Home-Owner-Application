@@ -2,6 +2,8 @@ import javafx.application.Application;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -28,11 +30,14 @@ public class UserInterface extends Application {
         launch(args);
     }
 
+    PropertyAssessmentDAO dao = null;
+    String source = "n/a";
+
     @Override
     public void start(Stage primaryStage) throws IOException {
         primaryStage.setTitle("JavaFX Test");
         BorderPane rootNode = new BorderPane();
-        Scene scene = new Scene(rootNode, 1000, 600);
+        Scene scene = new Scene(rootNode, 1100, 600);
         primaryStage.setScene(scene);
         primaryStage.show();
 
@@ -49,7 +54,6 @@ public class UserInterface extends Application {
         Font roboto = Font.font("Roboto", FontWeight.BOLD, 16);
         Font smallboto = new Font("Roboto", 14);
         Label spacing = new Label("                   ");
-        Label spacing2 = new Label("                   ");
         Label sourceLabel = new Label("Select Data Source");
         sourceLabel.setFont(roboto);
         Label paLabel = new Label("Find Property Assessment");
@@ -66,12 +70,11 @@ public class UserInterface extends Application {
         assessValueLabel.setFont(smallboto);
 
         // Create combo boxes
-        String[] sources = { "CSV File", "API" };
+        String[] sources = { "CSV File", "Edmonton's Open Data Portal" };
         ComboBox<String> sourceSelectBox = new ComboBox<>(FXCollections.observableArrayList(sources));
-        sourceSelectBox.setPrefWidth(150);
-        //String[] classes = dao.getAssessmentClasses(); // make it auto later
-        String[] classes = { "FARMLAND", "ETC." };
-        ComboBox<String> classSelectBox = new ComboBox<>(FXCollections.observableArrayList(classes));
+        sourceSelectBox.setPrefWidth(200);
+        //automatically fills after source is loaded
+        ComboBox<String> classSelectBox = new ComboBox<>();
         classSelectBox.setPrefWidth(150);
 
         //create input boxes
@@ -88,6 +91,7 @@ public class UserInterface extends Application {
 
         //create buttons
         Button readDataButton = new Button("Read Data");
+        readDataButton.setPrefWidth(200);
         Button searchButton = new Button("Search");
         searchButton.setPrefWidth(95);
         Button resetButton = new Button("Reset");
@@ -106,7 +110,7 @@ public class UserInterface extends Application {
         searchPane.setPrefWidth(180);
         searchPane.setSpacing(5.0);
         searchPane.setPadding(new Insets(1,1,1,1));
-        searchPane.setBorder(new Border(new BorderStroke(Color.rgb(200, 200, 200), BorderStrokeStyle.SOLID, null, null)));
+        //searchPane.setBorder(new Border(new BorderStroke(Color.rgb(200, 200, 200), BorderStrokeStyle.SOLID, null, null)));
         searchPane.getChildren().addAll(paLabel, accNoLabel, acctNoField,
                 addressLabel, addressField, neighbourhoodLabel,
                 neighbourhoodField, assessClassLabel, classSelectBox);
@@ -116,46 +120,157 @@ public class UserInterface extends Application {
         valueSearchPane.setHgap(10);
         valueSearchPane.setPrefWidth(180);
         valueSearchPane.getChildren().addAll(assessValueLabel, minValueField, maxValueField, searchButton, resetButton);
-        valueSearchPane.setBorder(new Border(new BorderStroke(Color.rgb(200, 200, 200), BorderStrokeStyle.SOLID, null, null)));
+        //valueSearchPane.setBorder(new Border(new BorderStroke(Color.rgb(200, 200, 200), BorderStrokeStyle.SOLID, null, null)));
         valueSearchPane.setPadding(new Insets(1,1,1,1));
 
         //add everything to the left menu
-        menu.getChildren().addAll(dataSource, spacing, searchPane, spacing2, valueSearchPane);
+        menu.getChildren().addAll(dataSource, spacing, searchPane, valueSearchPane);
         rootNode.setLeft(menu);
 
         //create list to display property assessments
         ObservableList<PropertyAssessment> propertyDisplay = observableArrayList();
-
-        //get and add properties to the display list
-        //PropertyAssessmentDAO apiDao = new ApiPropertyAssessmentDAO();
-        //PropertyAssessment property = apiDao.getByAccountNumber(1103530);
-        //propertyDisplay.add(property);
-        PropertyAssessmentDAO dao = new CsvPropertyAssessmentDAO("Property_Assessment_Data_2022.csv");
-        List<PropertyAssessment> properties = dao.getByAssessmentClass("FARMLAND");
-        propertyDisplay.addAll(properties);
-
 
         VBox center = new VBox();
         Label title = new Label("Edmonton Property Assessments");
         title.setFont(roboto);
         center.getChildren().add(title);
 
+        TableView<PropertyAssessment> table = makeTable(primaryStage, propertyDisplay);
+        center.getChildren().add(table);
+        rootNode.setCenter(center);
+
+        //READ BUTTON ACTION
+        readDataButton.setOnAction(actionEvent -> {
+            if (!sourceSelectBox.getSelectionModel().isEmpty()) {
+                String choice = sourceSelectBox.getValue();
+                if (choice.equals(sources[0])) {
+                    //set source global variable to CSV if they chose csv
+                    source = "CSV";
+                    try {
+                        dao = new CsvPropertyAssessmentDAO("Property_Assessment_Data_2022.csv");
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                    List<PropertyAssessment> properties = dao.getProperties();
+                    propertyDisplay.clear();
+                    propertyDisplay.addAll(properties);
+
+                } else if (choice.equals(sources[1])) {
+                    //set source global variable to API if they chose edmonton open data portal
+                    source = "API";
+                    dao = new ApiPropertyAssessmentDAO();
+                    List<PropertyAssessment> properties = dao.getProperties();
+                    propertyDisplay.clear();
+                    propertyDisplay.addAll(properties);
+                }
+                List<String> list = dao.getAssessmentClasses();
+                classSelectBox.setItems(FXCollections.observableList(list));
+            } else {
+                showAlert("No source selected!");
+            }
+        });
+
+        resetButton.setOnAction(actionEvent -> {
+            //empty all fields
+            acctNoField.setText("");
+            addressField.setText("");
+            neighbourhoodField.setText("");
+            classSelectBox.getSelectionModel().clearSelection();
+            minValueField.setText("");
+            maxValueField.setText("");
+        });
+
+        searchButton.setOnAction(actionEvent -> {
+            List<PropertyAssessment> properties = new ArrayList<>();
+            String acctNo = acctNoField.getText();
+            String address = addressField.getText();
+            String neighbourhood = neighbourhoodField.getText();
+            String assessment = classSelectBox.getValue();
+            if(assessment == null){
+                assessment = "";
+            }
+            String minVal = minValueField.getText();
+            String maxVal = maxValueField.getText();
+
+            //if a dao has not been selected yet
+            if(source.equals("n/a")){
+                showAlert("Select data source first!");
+                return;
+            }
+
+            //if there is nothing in any field
+            if(acctNo.length() == 0 && address.length() == 0 && neighbourhood.length() == 0 && assessment.length() == 0 && (minVal.length() == 0 && maxVal.length() == 0) ){
+                //get all properties
+                properties = dao.getProperties();
+            }
+
+            //if there is anything in the account number field
+            if(!acctNo.equals("")){
+                //just search by that only
+                PropertyAssessment prop = dao.getByAccountNumber(Integer.parseInt(acctNo));
+                if (prop != null){
+                    properties.add(prop);
+                }
+            }
+            //if only address is filled
+            else if (address.length() > 0 && neighbourhood.length() == 0 && assessment.length() == 0 && (minVal.length() == 0 && maxVal.length() == 0) ){
+                properties = dao.getByAddress(address);
+            }
+            //else if only neighbourhood is filled
+            else if (address.length() == 0 && neighbourhood.length() > 0 && assessment.length() == 0 && (minVal.length() == 0 && maxVal.length() == 0) ){
+                properties = dao.getByNeighbourhood(neighbourhood);
+            }
+            //else if only assessment class is filled
+            else if (address.length() == 0 && neighbourhood.length() == 0 && assessment.length() > 0 && (minVal.length() == 0 && maxVal.length() == 0) ){
+                properties = dao.getByAssessmentClass(assessment);
+            }
+            else if (address.length() == 0 && neighbourhood.length() == 0 && assessment.length() == 0 && (minVal.length() > 0 || maxVal.length() > 0) ){
+                properties = dao.getByValue(minVal, maxVal);
+            }
+
+            propertyDisplay.clear();
+            propertyDisplay.addAll(properties);
+            if(properties.size()==0){
+                showAlert("No properties fit the search criteria.");
+            }
+
+        });
+
+    }
+
+
+    private List<PropertyAssessment> CsvSearch(){
+
+        return null;
+    }
+
+    private List<PropertyAssessment> ApiSearch(){
+
+        return null;
+    }
+
+    public void showAlert(String message) {
+        //Adapted from REF: https://stackoverflow.com/a/36137669
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setHeaderText(message);
+        alert.showAndWait();
+    }
+
+    private TableView<PropertyAssessment> makeTable(Stage primaryStage, ObservableList<PropertyAssessment> propertyDisplay){
         TableView<PropertyAssessment> table = new TableView<>();
         table.prefWidthProperty().bind(primaryStage.widthProperty());
         table.prefHeightProperty().bind(primaryStage.heightProperty());
         table.setItems(propertyDisplay);
 
-        center.getChildren().add(table);
-        rootNode.setCenter(center);
 
         TableColumn<PropertyAssessment, Integer> idCol = new TableColumn<>("Account");
         idCol.setCellValueFactory(new PropertyValueFactory<>("accountNumber"));
-        idCol.setPrefWidth(80);
+        idCol.setPrefWidth(60);
         table.getColumns().add(idCol);
 
         TableColumn<PropertyAssessment, Address> addressCol = new TableColumn<>("Address");
         addressCol.setCellValueFactory(new PropertyValueFactory<>("address"));
-        addressCol.setPrefWidth(150);
+        addressCol.setPrefWidth(175);
         table.getColumns().add(addressCol);
 
         NumberFormat currency = NumberFormat.getCurrencyInstance();
@@ -166,12 +281,12 @@ public class UserInterface extends Application {
             String formattedCost = currency.format(cellData.getValue().getAssessedValue());
             return new SimpleStringProperty(formattedCost);
         });
-        valueCol.setPrefWidth(80);
+        valueCol.setPrefWidth(90);
         table.getColumns().add(valueCol);
 
         TableColumn<PropertyAssessment, AssessmentClass> classCol = new TableColumn<>("Assessment Class");
         classCol.setCellValueFactory(new PropertyValueFactory<>("assessmentClass"));
-        classCol.setPrefWidth(200);
+        classCol.setPrefWidth(150);
         table.getColumns().add(classCol);
 
         TableColumn<PropertyAssessment, Neighbourhood> neighbourhoodCol = new TableColumn<>("Neighbourhood");
@@ -183,6 +298,8 @@ public class UserInterface extends Application {
         locCol.setCellValueFactory(new PropertyValueFactory<>("location"));
         locCol.setPrefWidth(200);
         table.getColumns().add(locCol);
+
+        return table;
 
     }
 }

@@ -13,7 +13,10 @@ public class Neighbourhood {
 
     @Override
     public String toString(){
-        return neighbourhood + " (" + ward + ")";
+        if(!ward.equals("")){
+            return neighbourhood + " (" + ward + ")";
+        }
+        return neighbourhood;
     }
 
     @Override

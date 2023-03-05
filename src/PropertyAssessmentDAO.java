@@ -1,6 +1,36 @@
+import java.beans.PropertyEditor;
 import java.util.List;
 
 public interface PropertyAssessmentDAO {
+
+    /**
+     * gets all data from the given source
+     * @return all data received
+     */
+    List<PropertyAssessment> getProperties();
+
+
+    /**
+     * gets all properties from the data source with assessed values between the two given numbers
+     * @param min minimum value
+     * @param max maximum value
+     * @return list of property assessments with assessed values between min and max
+     */
+    List<PropertyAssessment> getByValue(String min, String max);
+
+    /**
+     * gets all the assessment classes from given data source
+     * @return list of all distinct assessment classes
+     */
+    List<String> getAssessmentClasses();
+
+
+    /**
+     * searches the dao of properties by a given address
+     * @param address given address to search for, can be partial address
+     * @return list of property assessments that have the address
+     */
+    List<PropertyAssessment> getByAddress(String address);
 
     /**
      * searches PropertyAssessments for given account number and returns the property if it exists

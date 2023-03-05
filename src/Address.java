@@ -13,7 +13,10 @@ public class Address {
 
     @Override
     public String toString(){
-        return suite + " " + houseNumber + " " + streetName;
+        if(houseNumber != 0){
+            return suite + " " + houseNumber + " " + streetName;
+        }
+        return suite + streetName;
     }
 
 

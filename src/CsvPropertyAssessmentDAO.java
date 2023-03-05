@@ -5,6 +5,9 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import static java.lang.Integer.MAX_VALUE;
 
 public class CsvPropertyAssessmentDAO implements PropertyAssessmentDAO {
 
@@ -65,6 +68,41 @@ public class CsvPropertyAssessmentDAO implements PropertyAssessmentDAO {
         return new ArrayList<>(properties);
 
     }
+
+    @Override
+    public List<PropertyAssessment> getByValue(String min, String max) {
+        if(min.equals("")){
+            min = "0";
+        }
+        if(max.equals("")){
+            max = Integer.toString(MAX_VALUE);
+        }
+        //gives more space for super large numbers
+        long minn = Long.parseLong(min);
+        long maxx = Long.parseLong(max);
+        return getProperties().stream().filter(d->d.getAssessedValue()>minn).filter(d->d.getAssessedValue()<maxx).toList();
+    }
+
+    @Override
+    public List<String> getAssessmentClasses() {
+        List<String> classes = new ArrayList<>();
+        for(PropertyAssessment property : getProperties()){
+            String current = property.getAssessmentClass().getClass1();
+            classes.add(current);
+            current = property.getAssessmentClass().getClass2();
+            classes.add(current);
+            current = property.getAssessmentClass().getClass3();
+            classes.add(current);
+
+        }
+        return classes.stream().distinct().sorted().toList();
+    }
+
+    @Override
+    public List<PropertyAssessment> getByAddress(String address) {
+        return null;
+    }
+
 
     public PropertyAssessment getByAccountNumber(int accountNumber){
         for(PropertyAssessment property : getProperties()){
