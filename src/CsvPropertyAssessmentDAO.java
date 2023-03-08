@@ -4,8 +4,8 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static java.lang.Integer.MAX_VALUE;
 
@@ -70,6 +70,88 @@ public class CsvPropertyAssessmentDAO implements PropertyAssessmentDAO {
     }
 
     @Override
+    public List<PropertyAssessment> advancedSearch(HashMap<String, String> searchCriteria) {
+        String address = searchCriteria.get("address");
+        String neighbourhood = searchCriteria.get("neighbourhood");
+        String assessment = searchCriteria.get("assessment");
+        String min = searchCriteria.get("min");
+        String max = searchCriteria.get("max");
+
+        List<PropertyAssessment> matches = new ArrayList<>();
+
+        //address search
+        if (address.length() > 0){
+            String finalAddress = address.toUpperCase();
+            //add all properties that fit into matches
+            matches.addAll( getProperties().stream().filter(d->d.getAddress().getSuite().contains(finalAddress)).toList() );
+            matches.addAll( getProperties().stream().filter(d->d.getAddress().getStreetName().contains(finalAddress)).toList() );
+            matches.addAll( getProperties().stream().filter(d->Integer.toString(d.getAddress().getHouseNumber()).contains(finalAddress) ).toList());
+            if (matches.size() == 0){
+                //if the operation didn't return any properties then we can return early
+                return matches;
+            }
+        }
+
+        //neighbourhood search
+        if(neighbourhood.length() > 0){
+            String finalNeighbourhood = neighbourhood.toUpperCase();
+            if (address.length() > 0) {
+                //matches has the properties from address in it, so we need to filter through those to see which are in
+                //the correct neighbourhood
+                matches = matches.stream().filter(d->d.getNeighbourhood().getNeighbourhood().contains(finalNeighbourhood)).toList();
+            } else {
+                //matches has no properties in it yet, so we add the ones that fit the neighbourhood search
+                matches.addAll( getProperties().stream().filter(d->d.getNeighbourhood().getNeighbourhood().contains(finalNeighbourhood)).toList() );
+            }
+            if (matches.size() == 0){
+                //if the operation didn't return any properties then we can return early
+                return matches;
+            }
+        }
+
+        //assessment class search
+        if(assessment.length() > 0){
+            String finalAssessment = assessment.toUpperCase();
+            if(neighbourhood.length() > 0 || address.length() > 0){
+                //matches has properties from one of the previous searches in it, so we filter through those
+                matches = matches.stream().filter(d->d.getAssessmentClass().getClass1().equals(finalAssessment) ||
+                        d.getAssessmentClass().getClass2().equals(assessment) ||
+                        d.getAssessmentClass().getClass3().equals(assessment)).toList();
+            } else{
+                //else there is no properties in matches yet
+                matches.addAll(getProperties().stream().filter(d->d.getAssessmentClass().getClass1().equals(finalAssessment) ||
+                        d.getAssessmentClass().getClass2().equals(assessment) ||
+                        d.getAssessmentClass().getClass3().equals(assessment)).toList());
+            }
+            if (matches.size() == 0){
+                //if the operation didn't return any properties then we can return early
+                return matches;
+            }
+        }
+
+        //value search
+        if (min.length() > 0 || max.length() > 0){
+            if(min.equals("")){
+                min = "0";
+            }
+            if(max.equals("")){
+                max = Integer.toString(MAX_VALUE);
+            }
+            long minn = Long.parseLong(min);
+            long maxx = Long.parseLong(max);
+            if(neighbourhood.length() > 0 || address.length() > 0 || assessment.length() > 0){
+                //there is already properties in matches, we need to filter those
+                matches = matches.stream().filter(d->d.getAssessedValue()>minn).filter(d->d.getAssessedValue()<maxx).toList();
+            } else {
+                //there is no properties yet so add to empty list
+                matches.addAll(getProperties().stream().filter(d->d.getAssessedValue()>minn).filter(d->d.getAssessedValue()<maxx).toList());
+            }
+        }
+
+        return matches;
+    }
+
+    @Override
     public List<PropertyAssessment> getByValue(String min, String max) {
         if(min.equals("")){
             min = "0";
@@ -100,7 +182,15 @@ public class CsvPropertyAssessmentDAO implements PropertyAssessmentDAO {
 
     @Override
     public List<PropertyAssessment> getByAddress(String address) {
-        return null;
+        String finalAddress = address.toUpperCase();
+
+        List<PropertyAssessment> matches = new ArrayList<>();
+
+        matches.addAll( getProperties().stream().filter(d->d.getAddress().getSuite().contains(finalAddress)).toList() );
+        matches.addAll( getProperties().stream().filter(d->d.getAddress().getStreetName().contains(finalAddress)).toList() );
+        matches.addAll( getProperties().stream().filter(d->Integer.toString(d.getAddress().getHouseNumber()).contains(finalAddress) ).toList());
+
+        return matches;
     }
 
 
@@ -114,13 +204,9 @@ public class CsvPropertyAssessmentDAO implements PropertyAssessmentDAO {
     }
 
     public List<PropertyAssessment> getByNeighbourhood(String neighbourhood){
-        List<PropertyAssessment> propertiesInNeighbourhood = new ArrayList<>();
-        for(PropertyAssessment property : getProperties()){
-            if (property.getNeighbourhood().getNeighbourhood().equalsIgnoreCase(neighbourhood)) {
-                propertiesInNeighbourhood.add(property);
-            }
-        }
-        return propertiesInNeighbourhood;
+        String finalNeighbourhood = neighbourhood.toUpperCase();
+
+        return getProperties().stream().filter(d->d.getNeighbourhood().getNeighbourhood().contains(finalNeighbourhood)).toList();
     }
 
     public List<PropertyAssessment> getByAssessmentClass(String assessmentClass){

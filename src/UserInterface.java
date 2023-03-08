@@ -2,8 +2,6 @@ import javafx.application.Application;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -20,6 +18,7 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import static javafx.collections.FXCollections.observableArrayList;
@@ -34,7 +33,7 @@ public class UserInterface extends Application {
     String source = "n/a";
 
     @Override
-    public void start(Stage primaryStage) throws IOException {
+    public void start(Stage primaryStage) {
         primaryStage.setTitle("JavaFX Test");
         BorderPane rootNode = new BorderPane();
         Scene scene = new Scene(rootNode, 1100, 600);
@@ -50,10 +49,11 @@ public class UserInterface extends Application {
         menu.setBorder(new Border(new BorderStroke(Color.DIMGREY, BorderStrokeStyle.SOLID, null, null)));
         //menu.setStyle("-fx-background-color: #ffd68a;");
 
+        Separator separator = new Separator();
+
         // Labels
         Font roboto = Font.font("Roboto", FontWeight.BOLD, 16);
         Font smallboto = new Font("Roboto", 14);
-        Label spacing = new Label("                   ");
         Label sourceLabel = new Label("Select Data Source");
         sourceLabel.setFont(roboto);
         Label paLabel = new Label("Find Property Assessment");
@@ -124,7 +124,7 @@ public class UserInterface extends Application {
         valueSearchPane.setPadding(new Insets(1,1,1,1));
 
         //add everything to the left menu
-        menu.getChildren().addAll(dataSource, spacing, searchPane, valueSearchPane);
+        menu.getChildren().addAll(dataSource, separator, searchPane, valueSearchPane);
         rootNode.setLeft(menu);
 
         //create list to display property assessments
@@ -170,6 +170,7 @@ public class UserInterface extends Application {
             }
         });
 
+        //reset button event
         resetButton.setOnAction(actionEvent -> {
             //empty all fields
             acctNoField.setText("");
@@ -178,14 +179,21 @@ public class UserInterface extends Application {
             classSelectBox.getSelectionModel().clearSelection();
             minValueField.setText("");
             maxValueField.setText("");
+            //reset properties in table
+            List<PropertyAssessment> properties = dao.getProperties();
+            propertyDisplay.clear();
+            propertyDisplay.addAll(properties);
         });
 
+        //search button event
+        searchButton.setDefaultButton(true); //allows search by clicking enter
         searchButton.setOnAction(actionEvent -> {
             List<PropertyAssessment> properties = new ArrayList<>();
             String acctNo = acctNoField.getText();
             String address = addressField.getText();
             String neighbourhood = neighbourhoodField.getText();
             String assessment = classSelectBox.getValue();
+            //if value is null set it to an empty string so I can use it the same as the other fields
             if(assessment == null){
                 assessment = "";
             }
@@ -206,7 +214,7 @@ public class UserInterface extends Application {
 
             //if there is anything in the account number field
             if(!acctNo.equals("")){
-                //just search by that only
+                //just search by that only, regardless of if there is something in other fields (makes more sense to me)
                 PropertyAssessment prop = dao.getByAccountNumber(Integer.parseInt(acctNo));
                 if (prop != null){
                     properties.add(prop);
@@ -224,29 +232,37 @@ public class UserInterface extends Application {
             else if (address.length() == 0 && neighbourhood.length() == 0 && assessment.length() > 0 && (minVal.length() == 0 && maxVal.length() == 0) ){
                 properties = dao.getByAssessmentClass(assessment);
             }
+            //else if only one of the value ranges are filled
             else if (address.length() == 0 && neighbourhood.length() == 0 && assessment.length() == 0 && (minVal.length() > 0 || maxVal.length() > 0) ){
                 properties = dao.getByValue(minVal, maxVal);
+            } else {
+                //this means that there are multiple search terms filled
+                //I realize that I can use this for every search now that I made it, but I made it last
+                //The other ones are still good to have for when there is only one search criteria, as they are more
+                //optimized, no reason to do an advanced search if we don't need to...
+                //make a hashmap of search criteria to send to advanced search method
+                HashMap<String, String> searchCriteria = new HashMap<>();
+                searchCriteria.put("address", address);
+                searchCriteria.put("neighbourhood", neighbourhood);
+                searchCriteria.put("assessment", assessment);
+                searchCriteria.put("min", minVal);
+                searchCriteria.put("max", maxVal);
+
+                properties = dao.advancedSearch(searchCriteria);
             }
 
+            //clear the previous properties out of the table
             propertyDisplay.clear();
-            propertyDisplay.addAll(properties);
+            //check if any properties were returned by the searches
             if(properties.size()==0){
                 showAlert("No properties fit the search criteria.");
+            } else {
+                //otherwise add the found properties to the table
+                propertyDisplay.addAll(properties);
             }
 
         });
 
-    }
-
-
-    private List<PropertyAssessment> CsvSearch(){
-
-        return null;
-    }
-
-    private List<PropertyAssessment> ApiSearch(){
-
-        return null;
     }
 
     public void showAlert(String message) {
@@ -261,7 +277,6 @@ public class UserInterface extends Application {
         table.prefWidthProperty().bind(primaryStage.widthProperty());
         table.prefHeightProperty().bind(primaryStage.heightProperty());
         table.setItems(propertyDisplay);
-
 
         TableColumn<PropertyAssessment, Integer> idCol = new TableColumn<>("Account");
         idCol.setCellValueFactory(new PropertyValueFactory<>("accountNumber"));

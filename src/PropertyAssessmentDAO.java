@@ -1,4 +1,4 @@
-import java.beans.PropertyEditor;
+import java.util.HashMap;
 import java.util.List;
 
 public interface PropertyAssessmentDAO {
@@ -8,6 +8,9 @@ public interface PropertyAssessmentDAO {
      * @return all data received
      */
     List<PropertyAssessment> getProperties();
+
+
+    List<PropertyAssessment> advancedSearch(HashMap<String, String> searchCriteria);
 
 
     /**
