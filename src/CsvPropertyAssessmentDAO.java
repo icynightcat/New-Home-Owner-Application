@@ -71,6 +71,7 @@ public class CsvPropertyAssessmentDAO implements PropertyAssessmentDAO {
 
     @Override
     public List<PropertyAssessment> advancedSearch(HashMap<String, String> searchCriteria) {
+        //unload the hashmap
         String address = searchCriteria.get("address");
         String neighbourhood = searchCriteria.get("neighbourhood");
         String assessment = searchCriteria.get("assessment");
@@ -168,15 +169,11 @@ public class CsvPropertyAssessmentDAO implements PropertyAssessmentDAO {
     @Override
     public List<String> getAssessmentClasses() {
         List<String> classes = new ArrayList<>();
-        for(PropertyAssessment property : getProperties()){
-            String current = property.getAssessmentClass().getClass1();
-            classes.add(current);
-            current = property.getAssessmentClass().getClass2();
-            classes.add(current);
-            current = property.getAssessmentClass().getClass3();
-            classes.add(current);
 
-        }
+        classes.addAll(getProperties().stream().map(d->d.getAssessmentClass().getClass1()).distinct().toList());
+        classes.addAll(getProperties().stream().map(d->d.getAssessmentClass().getClass2()).distinct().toList());
+        classes.addAll(getProperties().stream().map(d->d.getAssessmentClass().getClass3()).distinct().toList());
+
         return classes.stream().distinct().sorted().toList();
     }
 

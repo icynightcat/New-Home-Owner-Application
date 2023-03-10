@@ -147,6 +147,7 @@ public class UserInterface extends Application {
                     //set source global variable to CSV if they chose csv
                     source = "CSV";
                     try {
+                        //then set dao to use CsvDAO
                         dao = new CsvPropertyAssessmentDAO("Property_Assessment_Data_2022.csv");
                     } catch (IOException e) {
                         throw new RuntimeException(e);
@@ -158,13 +159,16 @@ public class UserInterface extends Application {
                 } else if (choice.equals(sources[1])) {
                     //set source global variable to API if they chose edmonton open data portal
                     source = "API";
+                    //otherwise set DAO to use ApiDao
                     dao = new ApiPropertyAssessmentDAO();
                     List<PropertyAssessment> properties = dao.getProperties();
                     propertyDisplay.clear();
                     propertyDisplay.addAll(properties);
                 }
+                //get assessment classes to add to the dropdown
                 List<String> list = dao.getAssessmentClasses();
                 classSelectBox.setItems(FXCollections.observableList(list));
+                //NOTE: the blank item is intended so that users can select no assessment class without needing to reset
             } else {
                 showAlert("No source selected!");
             }

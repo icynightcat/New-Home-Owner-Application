@@ -14,12 +14,23 @@ import static java.lang.Integer.MAX_VALUE;
 
 public class ApiPropertyAssessmentDAO implements PropertyAssessmentDAO {
 
+    /**
+     * private helper method that returns a list of PropertyAssessments from data.edmonton.ca/resource/q7d6-ambg.csv
+     * given a set of parameters to filter by. It is used by the search methods once the parameters are decided on
+     * The parameters will also be correctly encoded if there are any. if there are no parameters, the first 1000
+     * entries are returned
+     * Note: Only works with correctly formatted query that does not already include a ?$where= parameter
+     * @param params a correctly formatted query without ?$where= added
+     * @return a list of PropertyAssessment objects that fit the search criteria
+     */
     private List<PropertyAssessment> getListFrom(String params) {
         String url = "https://data.edmonton.ca/resource/q7d6-ambg.csv";
 
-        //params = params.replace(" ", "+");
+        //we want to encode the parameters (if there is any)
         if (params.length() > 0) {
+            //first add where to the url
             url = url + "?$where=";
+            //then encode the parameters and add them to the url
             params = URLEncoder.encode(params, StandardCharsets.UTF_8);
             url = url + params;
         }
@@ -32,13 +43,16 @@ public class ApiPropertyAssessmentDAO implements PropertyAssessmentDAO {
 
         try {
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            //get rid of all the extra quotes that were added
             String responseString = response.body().replace("\"", "");
+            //get rid of the header
             responseString = responseString.replace("account_number,suite,house_number,street_name,garage,neighbourhood_id,neighbourhood,ward,assessed_value,latitude,longitude,point_location,tax_class_pct_1,tax_class_pct_2,tax_class_pct_3,mill_class_1,mill_class_2,mill_class_3", "");
-            //responseString = responseString.replace("\n", "");
+            //split results into a list
             List<String> propList = new ArrayList<>(Arrays.asList(responseString.split("\n")));
 
             List<PropertyAssessment> properties = new ArrayList<>();
 
+            //get every entry in the list and convert it to a PropertyAssessment object
             for (String property : propList) {
                 property = property.replace("\n", "");
                 List<String> entry = new ArrayList<>(Arrays.asList(property.split(",", 18)));
@@ -48,6 +62,7 @@ public class ApiPropertyAssessmentDAO implements PropertyAssessmentDAO {
                 }
             }
 
+            //return the list of PropertyAssessment objects
             return properties;
 
         } catch (IOException | InterruptedException e) {
@@ -57,6 +72,7 @@ public class ApiPropertyAssessmentDAO implements PropertyAssessmentDAO {
 
     @Override
     public List<PropertyAssessment> getProperties() {
+        //empty url because we want no parameters
         String url = "";
         return getListFrom(url);
 
@@ -64,6 +80,7 @@ public class ApiPropertyAssessmentDAO implements PropertyAssessmentDAO {
 
     @Override
     public List<PropertyAssessment> advancedSearch(HashMap<String, String> searchCriteria) {
+        //unload the hashmap
         String address = searchCriteria.get("address");
         String neighbourhood = searchCriteria.get("neighbourhood");
         String assessment = searchCriteria.get("assessment");
@@ -123,7 +140,7 @@ public class ApiPropertyAssessmentDAO implements PropertyAssessmentDAO {
         if(max.equals("")){
             max = Integer.toString(MAX_VALUE);
         }
-        String url = "?$where=assessed_value between " + min + " and " + max;
+        String url = "assessed_value between " + min + " and " + max;
 
         return getListFrom(url);
     }

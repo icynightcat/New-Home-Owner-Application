@@ -5,11 +5,17 @@ public interface PropertyAssessmentDAO {
 
     /**
      * gets all data from the given source
-     * @return all data received
+     * @return list of all property assessments from the source
      */
     List<PropertyAssessment> getProperties();
 
 
+    /**
+     * Allows an advanced propertyAssessment search with multiple criteria. This option should only be used if there are
+     * more than one search criteria, but does work with only one.
+     * @param searchCriteria a HashMap holding the search criteria mapped to the criteria type
+     * @return a list of property assessments that fit the search criteria
+     */
     List<PropertyAssessment> advancedSearch(HashMap<String, String> searchCriteria);
 
 
