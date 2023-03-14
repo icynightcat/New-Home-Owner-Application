@@ -243,6 +243,8 @@ public class UserInterface extends Application {
             //else if only one of the value ranges are filled
             else if (address.length() == 0 && neighbourhood.length() == 0 && assessment.length() == 0 && (minVal.length() > 0 || maxVal.length() > 0) ){
                 properties = dao.getByValue(minVal, maxVal);
+            } else if (address.length() == 0 && neighbourhood.length() == 0 && assessment.length() == 0) {
+                resetButton.fire();
             } else {
                 //this means that there are multiple search terms filled
                 //I realize that I can use this for every search now that I made it, but I made it last
