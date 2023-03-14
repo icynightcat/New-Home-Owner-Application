@@ -219,9 +219,13 @@ public class UserInterface extends Application {
             //if there is anything in the account number field
             if(!acctNo.equals("")){
                 //just search by that only, regardless of if there is something in other fields (makes more sense to me)
-                PropertyAssessment prop = dao.getByAccountNumber(Integer.parseInt(acctNo));
-                if (prop != null){
-                    properties.add(prop);
+                try {
+                    PropertyAssessment prop = dao.getByAccountNumber(Integer.parseInt(acctNo));
+                    if (prop != null){
+                        properties.add(prop);
+                    }
+                } catch (NumberFormatException e) {
+                    properties = new ArrayList<>();
                 }
             }
             //if only address is filled

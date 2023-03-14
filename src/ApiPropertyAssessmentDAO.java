@@ -92,7 +92,7 @@ public class ApiPropertyAssessmentDAO implements PropertyAssessmentDAO {
         //address search
         if (address.length() > 0){
             address = address.toUpperCase();
-            url = url + "(suite like '" + address + "%' OR house_number like '" + address + "%' OR street_name like '" + address + "%')";
+            url = url + "(suite like '%" + address + "%' OR house_number like '" + address + "%' OR street_name like '%" + address + "%')";
         }
 
         //neighbourhood search
@@ -101,7 +101,7 @@ public class ApiPropertyAssessmentDAO implements PropertyAssessmentDAO {
             if (address.length() > 0) {
                 url = url + " and ";
             }
-            url = url + "neighbourhood like'" + neighbourhood.toUpperCase() + "%'";
+            url = url + "neighbourhood like'%" + neighbourhood.toUpperCase() + "%'";
         }
 
         //assessment class search
