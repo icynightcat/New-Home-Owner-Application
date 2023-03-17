@@ -1,3 +1,7 @@
+import com.esri.arcgisruntime.ArcGISRuntimeEnvironment;
+import com.esri.arcgisruntime.mapping.ArcGISMap;
+import com.esri.arcgisruntime.mapping.BasemapStyle;
+import com.esri.arcgisruntime.mapping.view.MapView;
 import javafx.application.Application;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -138,6 +142,30 @@ public class UserInterface extends Application {
         TableView<PropertyAssessment> table = makeTable(primaryStage, propertyDisplay);
         center.getChildren().add(table);
         rootNode.setCenter(center);
+
+        //create map ---------------------------------------------------------------------------------------------------
+        String apiKey = "AAPK9bcef3a7d7e94479aa9e61bc556247083Yorp1DmW9m8Ds1n71r4wSLxUXs8REDU0p_iQeGIhIuUGoZAdoXWroq2OXgjF3L-";
+        ArcGISRuntimeEnvironment.setApiKey(apiKey);
+
+        MapView mapView = new MapView();
+        ArcGISMap map = new ArcGISMap(BasemapStyle.ARCGIS_IMAGERY);
+
+        mapView.setMap(map);
+
+        Button mapButton = new Button("Map");
+        menu.getChildren().add(mapButton);
+
+        mapButton.setOnAction(actionEvent -> {
+            //REF for making new window: https://stackoverflow.com/a/15041893
+            BorderPane root = new BorderPane();
+            Stage stage = new Stage();
+            stage.setTitle("Map");
+            stage.setScene(new Scene(root, 600, 600));
+            stage.show();
+
+            root.setCenter(mapView);
+        });
+
 
         //READ BUTTON ACTION
         readDataButton.setOnAction(actionEvent -> {
