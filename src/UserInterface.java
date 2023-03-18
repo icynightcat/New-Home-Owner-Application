@@ -1,7 +1,13 @@
 import com.esri.arcgisruntime.ArcGISRuntimeEnvironment;
+import com.esri.arcgisruntime.geometry.Point;
+import com.esri.arcgisruntime.geometry.SpatialReferences;
 import com.esri.arcgisruntime.mapping.ArcGISMap;
 import com.esri.arcgisruntime.mapping.BasemapStyle;
+import com.esri.arcgisruntime.mapping.Viewpoint;
+import com.esri.arcgisruntime.mapping.view.Graphic;
+import com.esri.arcgisruntime.mapping.view.GraphicsOverlay;
 import com.esri.arcgisruntime.mapping.view.MapView;
+import com.esri.arcgisruntime.symbology.SimpleMarkerSymbol;
 import javafx.application.Application;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -147,11 +153,31 @@ public class UserInterface extends Application {
         String apiKey = "AAPK9bcef3a7d7e94479aa9e61bc556247083Yorp1DmW9m8Ds1n71r4wSLxUXs8REDU0p_iQeGIhIuUGoZAdoXWroq2OXgjF3L-";
         ArcGISRuntimeEnvironment.setApiKey(apiKey);
 
+        //create mapView and map
         MapView mapView = new MapView();
-        ArcGISMap map = new ArcGISMap(BasemapStyle.ARCGIS_IMAGERY);
+        ArcGISMap map = new ArcGISMap(BasemapStyle.ARCGIS_TOPOGRAPHIC);
 
+        //set map to mapview
         mapView.setMap(map);
+        //set viewpoint to edmonton (third variable is camera height kinda)
+        //longitude is negative for West
+        mapView.setViewpoint(new Viewpoint(53.54, -113.4937, 275000));
 
+        //create graphics overlay
+        //REF: https://developers.arcgis.com/java/maps-2d/tutorials/add-a-point-line-and-polygon/
+        GraphicsOverlay graphicsOverlay = new GraphicsOverlay();
+        mapView.getGraphicsOverlays().add(graphicsOverlay);
+
+        //add point to graphics overlay (lon/lat order now because of course it is)
+        Point point = new Point(-113.5064,53.5471, SpatialReferences.getWgs84());
+        //create symbol to put on that point
+        SimpleMarkerSymbol symbol = new SimpleMarkerSymbol(SimpleMarkerSymbol.Style.CIRCLE, Color.PURPLE, 10);
+
+        //create a graphic of the point to add to the graphics overlay
+        Graphic pointGraphic = new Graphic(point, symbol);
+        graphicsOverlay.getGraphics().add(pointGraphic);
+
+        //this is the temporary map button to pull up the map
         Button mapButton = new Button("Map");
         menu.getChildren().add(mapButton);
 
