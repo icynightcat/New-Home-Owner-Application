@@ -85,7 +85,6 @@ public class UserInterface extends Application {
         //create symbol to put on that point
         SimpleMarkerSymbol symbol = new SimpleMarkerSymbol(SimpleMarkerSymbol.Style.CIRCLE, Color.PURPLE, 10);
 
-        //function that takes a list of property assessments and a colour and adds them as points to a graphics overlay
 
 
         //function that takes a list of locations (lat/long) and a graphics overlay to add them to
@@ -397,12 +396,44 @@ public class UserInterface extends Application {
         //root.setLeft(button);
 
 
+        try {
+            dao = new CsvPropertyAssessmentDAO();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+
+        List<PropertyAssessment> props = dao.getByAssessmentClass("FARMLAND");
+
+        //function that takes a list of property assessments and a colour and adds them as points to a graphics overlay
+        addPropsToOverlay(graphicsOverlay, props, Color.AQUA);
+
+
         Scene scene = new Scene(root, 1250, 600);
 
         primaryStage.setTitle("Map");
         primaryStage.setScene(scene);
         root.setStyle("-fx-background-color: #F8F8FF;");
         primaryStage.show();
+    }
+
+    private void addPropsToOverlay(GraphicsOverlay overlay, List<PropertyAssessment> properties, Color color) {
+        //create symbol to put on that point
+        SimpleMarkerSymbol symbol = new SimpleMarkerSymbol(SimpleMarkerSymbol.Style.CIRCLE, color, 10);
+
+        for (PropertyAssessment property : properties) {
+
+
+            //add point to graphics overlay (lon/lat order now because of course it is)
+            Point point = new Point(property.getLocation().getLongitude(),property.getLocation().getLatitude(), SpatialReferences.getWgs84());
+
+            //create graphic using the point and the color graphic
+            Graphic pointGraphic = new Graphic(point, symbol);
+
+            overlay.getGraphics().add(pointGraphic);
+
+
+        }
     }
 
     public void showAlert(String message) {
@@ -459,8 +490,7 @@ public class UserInterface extends Application {
     }
 
     public static void main(String[] args) {
-        //launch();
-        System.out.println("hello");
+        launch();
     }
 
 }
