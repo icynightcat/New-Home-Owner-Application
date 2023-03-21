@@ -82,10 +82,15 @@ public class UserInterface extends Application {
         //create symbol to put on that point
         SimpleMarkerSymbol symbol = new SimpleMarkerSymbol(SimpleMarkerSymbol.Style.CIRCLE, Color.PURPLE, 10);
 
+        //function that takes a list of property assessments and a colour and adds them as points to a graphics overlay
+
+
+        //function that takes a list of locations (lat/long) and a graphics overlay to add them to
+
+
         //create a graphic of the point to add to the graphics overlay
         Graphic pointGraphic = new Graphic(point, symbol);
         graphicsOverlay.getGraphics().add(pointGraphic);
-
 
         statButton.setOnAction(event -> {
             BorderPane thirdLayout = new BorderPane();
@@ -451,7 +456,8 @@ public class UserInterface extends Application {
     }
 
     public static void main(String[] args) {
-        launch();
+        //launch();
+        System.out.println("hello");
     }
 
 }
