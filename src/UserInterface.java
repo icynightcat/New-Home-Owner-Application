@@ -46,20 +46,23 @@ public class UserInterface extends Application {
         //table button
         Button tableButton = new Button("Open Table");
         tableButton.setPrefWidth(200);
-        tableButton.setStyle("-fx-font-weight: bold; -fx-text-fill: #483D8B; -fx-border-color: #483D8B; -fx-border-width: 1.5px;" );
+        tableButton.setStyle("-fx-font-weight: bold; -fx-text-fill: #483D8B; -fx-border-color: #540054; -fx-border-width: 1.5px;" );
         tableButton.setLayoutX(10);
         tableButton.setLayoutY(560);
 
         //stats button
         Button statButton = new Button("Get Statistics");
         statButton.setPrefWidth(200);
-        statButton.setStyle("-fx-font-weight: bold; -fx-text-fill: #483D8B; -fx-border-color: #483D8B; -fx-border-width: 1.5px;" );
+        statButton.setStyle("-fx-font-weight: bold; -fx-text-fill: #483D8B; -fx-border-color: #540054; -fx-border-width: 1.5px;" );
         statButton.setLayoutX(10);
         statButton.setLayoutY(525);
+
 
         //map stuff
         //create map ---------------------------------------------------------------------------------------------------
         String apiKey = "AAPK9bcef3a7d7e94479aa9e61bc556247083Yorp1DmW9m8Ds1n71r4wSLxUXs8REDU0p_iQeGIhIuUGoZAdoXWroq2OXgjF3L-";
+        //String apiKey = "AAPK2d72f63e78bf4080b08944c50bf8ad75ruhLpRbSL4KyC3vqDiqShUvlC6CbTgAisL18IPcVL07mroGcMAjoBDY_wru-ygRe";
+       // ArcGISRuntimeEnvironment.setInstallDirectory("C:\\Users\\ayesh\\Desktop\\arcgis-maps-sdk-java-200.0.0");
         ArcGISRuntimeEnvironment.setApiKey(apiKey);
 
         //create mapView and map
@@ -145,35 +148,35 @@ public class UserInterface extends Application {
             Font smallboto = new Font("Roboto", 14);
             Label sourceLabel = new Label("Select Data Source");
             sourceLabel.setFont(roboto);
-            sourceLabel.setStyle("-fx-font-weight: bold; -fx-text-fill: #483D8B");
+            sourceLabel.setStyle("-fx-font-weight: bold; -fx-text-fill: #540054");
             Label paLabel = new Label("Find Property Assessment");
             paLabel.setFont(roboto);
-            paLabel.setStyle("-fx-font-weight: bold; -fx-text-fill: #483D8B");
+            paLabel.setStyle("-fx-font-weight: bold; -fx-text-fill: #540054");
             Label accNoLabel = new Label("Account Number:");
             accNoLabel.setFont(smallboto);
-            accNoLabel.setStyle("-fx-font-weight: bold; -fx-text-fill: #483D8B");
+            accNoLabel.setStyle("-fx-font-weight: bold; -fx-text-fill: #540054");
             Label addressLabel = new Label("Address:");
             addressLabel.setFont(smallboto);
-            addressLabel.setStyle("-fx-font-weight: bold; -fx-text-fill: #483D8B");
+            addressLabel.setStyle("-fx-font-weight: bold; -fx-text-fill: #540054");
             Label neighbourhoodLabel = new Label("Neighbourhood:");
             neighbourhoodLabel.setFont(smallboto);
-            neighbourhoodLabel.setStyle("-fx-font-weight: bold; -fx-text-fill: #483D8B");
+            neighbourhoodLabel.setStyle("-fx-font-weight: bold; -fx-text-fill: #540054");
             Label assessClassLabel = new Label("Assessment Class:");
             assessClassLabel.setFont(smallboto);
-            assessClassLabel.setStyle("-fx-font-weight: bold; -fx-text-fill: #483D8B");
+            assessClassLabel.setStyle("-fx-font-weight: bold; -fx-text-fill: #540054");
             Label assessValueLabel = new Label("Assessed Value Range:");
             assessValueLabel.setFont(smallboto);
-            assessValueLabel.setStyle("-fx-font-weight: bold; -fx-text-fill: #483D8B");
+            assessValueLabel.setStyle("-fx-font-weight: bold; -fx-text-fill: #540054");
 
             // Create combo boxes
             String[] sources = {"CSV File", "Edmonton's Open Data Portal"};
             ComboBox<String> sourceSelectBox = new ComboBox<>(FXCollections.observableArrayList(sources));
             sourceSelectBox.setPrefWidth(200);
-            sourceSelectBox.setStyle("-fx-text-fill: #483D8B; -fx-border-width: 1.5px;" );
+            sourceSelectBox.setStyle("-fx-text-fill: #540054; -fx-border-width: 1.5px;" );
             //automatically fills after source is loaded
             ComboBox<String> classSelectBox = new ComboBox<>();
             classSelectBox.setPrefWidth(150);
-            classSelectBox.setStyle("-fx-text-fill: #483D8B; -fx-border-width: 1.5px;" );
+            classSelectBox.setStyle("-fx-text-fill: #540054; -fx-border-width: 1.5px;" );
 
             //create input boxes
             TextField acctNoField = new TextField();
@@ -190,13 +193,13 @@ public class UserInterface extends Application {
             //create buttons
             Button readDataButton = new Button("Read Data");
             readDataButton.setPrefWidth(200);
-            readDataButton.setStyle("-fx-font-weight: bold; -fx-text-fill: #483D8B; -fx-border-color: #483D8B; -fx-border-width: 1.5px;" );
+            readDataButton.setStyle("-fx-font-weight: bold; -fx-text-fill: #540054; -fx-border-color: #540054; -fx-border-width: 1.5px;" );
             Button searchButton = new Button("Search");
             searchButton.setPrefWidth(95);
-            searchButton.setStyle("-fx-font-weight: bold; -fx-text-fill: #483D8B; -fx-border-color: #483D8B; -fx-border-width: 1.5px;" );
+            searchButton.setStyle("-fx-font-weight: bold; -fx-text-fill: #540054; -fx-border-color: #540054; -fx-border-width: 1.5px;" );
             Button resetButton = new Button("Reset");
             resetButton.setPrefWidth(95);
-            resetButton.setStyle("-fx-font-weight: bold; -fx-text-fill: #483D8B; -fx-border-color: #483D8B; -fx-border-width: 1.5px;" );
+            resetButton.setStyle("-fx-font-weight: bold; -fx-text-fill: #540054; -fx-border-color: #540054; -fx-border-width: 1.5px;" );
 
             //create flow pane for data source
             VBox dataSource = new VBox();
@@ -233,7 +236,7 @@ public class UserInterface extends Application {
 
             VBox center = new VBox();
             Label title = new Label("Edmonton Property Assessments");
-            title.setStyle("-fx-font-weight: bold; -fx-text-fill: #483D8B");
+            title.setStyle("-fx-font-weight: bold; -fx-text-fill: #540054");
             title.setFont(roboto);
             center.getChildren().add(title);
 
