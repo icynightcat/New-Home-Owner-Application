@@ -21,16 +21,20 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static javafx.collections.FXCollections.observableArrayList;
 
@@ -39,6 +43,7 @@ public class UserInterface extends Application {
 
     PropertyAssessmentDAO dao = null;
     String source = "n/a";
+
 
     @Override
     public void start(final Stage primaryStage) {
@@ -65,6 +70,9 @@ public class UserInterface extends Application {
        // ArcGISRuntimeEnvironment.setInstallDirectory("C:\\Users\\ayesh\\Desktop\\arcgis-maps-sdk-java-200.0.0");
         ArcGISRuntimeEnvironment.setApiKey(apiKey);
 
+        //create list for legend labels
+        List<LegendLabel> legendLabels = new ArrayList<>();
+
         //create mapView and map
         MapView mapView = new MapView();
         ArcGISMap map = new ArcGISMap(BasemapStyle.ARCGIS_TOPOGRAPHIC);
@@ -79,20 +87,6 @@ public class UserInterface extends Application {
         //REF: https://developers.arcgis.com/java/maps-2d/tutorials/add-a-point-line-and-polygon/
         GraphicsOverlay graphicsOverlay = new GraphicsOverlay();
         mapView.getGraphicsOverlays().add(graphicsOverlay);
-
-        //add point to graphics overlay (lon/lat order now because of course it is)
-        Point point = new Point(-113.5064,53.5471, SpatialReferences.getWgs84());
-        //create symbol to put on that point
-        SimpleMarkerSymbol symbol = new SimpleMarkerSymbol(SimpleMarkerSymbol.Style.CIRCLE, Color.PURPLE, 10);
-
-
-
-        //function that takes a list of locations (lat/long) and a graphics overlay to add them to
-
-
-        //create a graphic of the point to add to the graphics overlay
-        Graphic pointGraphic = new Graphic(point, symbol);
-        graphicsOverlay.getGraphics().add(pointGraphic);
 
         statButton.setOnAction(event -> {
             BorderPane thirdLayout = new BorderPane();
@@ -395,45 +389,169 @@ public class UserInterface extends Application {
         root.getChildren().add(mapView);
         //root.setLeft(button);
 
-
-        try {
-            dao = new CsvPropertyAssessmentDAO();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-
-        List<PropertyAssessment> props = dao.getByAssessmentClass("FARMLAND");
-
-        //function that takes a list of property assessments and a colour and adds them as points to a graphics overlay
-        addPropsToOverlay(graphicsOverlay, props, Color.AQUA);
-
-
         Scene scene = new Scene(root, 1250, 600);
 
         primaryStage.setTitle("Map");
         primaryStage.setScene(scene);
         root.setStyle("-fx-background-color: #F8F8FF;");
         primaryStage.show();
+
+
+        //Example for the legend usage -----------------------------
+        legendLabels.add(new LegendLabel("Test", Color.ORANGE));
+        legendLabels.add(new LegendLabel("MacEwan", Color.PURPLE));
+        legendLabels.add(new LegendLabel("Me", Color.GREEN));
+        legendLabels.add(new LegendLabel("This", Color.GRAY));
+        legendLabels.add(new LegendLabel("Location", Color.YELLOW));
+
+        //this is how I have to initialize it, so I can access it in a button (idk its weird)
+        final Stage[] legendWindow = new Stage[1];
+        legendWindow[0] = spawnLegend(primaryStage, legendLabels);
+        //call legendWindow.close() before changing the legend and making a new one
+        Button closeLegendButton = new Button("Close Legend");
+        closeLegendButton.setLayoutY(330);
+        closeLegendButton.setLayoutX(1100);
+        root.getChildren().add(closeLegendButton);
+        closeLegendButton.setOnAction(event -> {
+            //you have to use it kinda weird to use it in the button
+            legendWindow[0].close();
+
+            legendWindow[0] = spawnLegend(primaryStage, Arrays.asList(new LegendLabel("new", Color.PINK)));
+        } );
+        //Example for the legend usage -----------------------------
+
+        //testing adding properties and add bus to map
+        /*
+        try {
+            dao = new CsvPropertyAssessmentDAO();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        Random rand = new Random();
+
+        for (String assClass : dao.getAssessmentClasses()){
+            List<PropertyAssessment> props = dao.getByAssessmentClass(assClass);
+
+            //function that takes a list of property assessments and a colour and adds them as points to a graphics overlay
+            graphicsOverlay.getGraphics().addAll(getOverlayForProps(props, Color.rgb(rand.nextInt(255), rand.nextInt(255), rand.nextInt(255))));
+        }
+
+        try {
+            List<BusStops> busStops = ReadBusStops.readCSV();
+            graphicsOverlay.getGraphics().addAll(getOverlayForBus(busStops, Color.ORANGE));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+         */
+        //end testing
+
+
     }
 
-    private void addPropsToOverlay(GraphicsOverlay overlay, List<PropertyAssessment> properties, Color color) {
+    /**
+     * given a list of LegendLabels, this creates a new screen in the bottom left corner of the current one that shows
+     * the legend created from the LegendLabels
+     * @param primaryStage the screen you want to create the legend on top of
+     * @param labels A list of LegendLabel objects which hold the name and colour of each legend entry
+     * @return the stage that was created so that it can be closed when needed
+     */
+    private Stage spawnLegend(Stage primaryStage, List<LegendLabel> labels){
+        GridPane legendPane = new GridPane();
+        Scene legend = new Scene(legendPane, 150, 250);
+        Font roboto = Font.font("Roboto", FontWeight.BOLD, 15);
+
+        //set properties of the GridPane
+        legendPane.setHgap(5);
+        legendPane.setVgap(5);
+        legendPane.setPadding(new Insets(5, 5, 5, 5));
+
+        // New window (Stage)
+        Stage legendWindow = new Stage();
+        legendWindow.initStyle(StageStyle.TRANSPARENT);
+        legendPane.setStyle("-fx-background-color: rgba(0,0,0,0.1);"); //0.1 alpha value so it is transparent
+        legend.setFill(Color.TRANSPARENT);
+        legendWindow.setScene(legend);
+
+        // Specifies the owner Window (parent) for new window
+        legendWindow.initOwner(primaryStage);
+
+        // Set position of second window, related to primary window.
+        legendWindow.setX(primaryStage.getX() + primaryStage.getWidth() - 150);
+        legendWindow.setY(primaryStage.getY() + primaryStage.getHeight() - 250);
+
+        //for the grid pane, so each entry can be in the right y
+        int y =0;
+
+        //add labels to legend
+        for (LegendLabel label : labels){
+            Rectangle rect = new Rectangle(20, 20 );
+            rect.setFill(label.getColor());
+            rect.setStroke(Color.BLACK);
+            //Pad the string to take up the rest of the line
+            //REF: https://stackoverflow.com/a/391978
+            Label name = new Label(label.getName());
+            name.setFont(roboto);
+            legendPane.add(rect, 0, y);
+            legendPane.add(name, 1, y);
+            y++;
+        }
+
+        legendWindow.show();
+
+        return legendWindow;
+    }
+
+
+
+    /**
+     * Returns a list of graphics to add to the map overlay when given a list of properties and a colour to display the
+     * property markers in
+     * example usage: graphicsOverlay.getGraphics().addAll(getOverlayForProps(props, Color.CYAN))
+     * @param properties A list of Property objects
+     * @param color a Color object
+     * @return a list of Graphics objects that can be added to the map using overlay.getGraphics().add(pointGraphic);
+     */
+    private List<Graphic> getOverlayForProps(List<PropertyAssessment> properties, Color color) {
         //create symbol to put on that point
-        SimpleMarkerSymbol symbol = new SimpleMarkerSymbol(SimpleMarkerSymbol.Style.CIRCLE, color, 10);
+        SimpleMarkerSymbol symbol = new SimpleMarkerSymbol(SimpleMarkerSymbol.Style.CIRCLE, color, 3);
+
+        //create list to hold graphics
+        List<Graphic> graphics = new ArrayList<>();
 
         for (PropertyAssessment property : properties) {
-
-
             //add point to graphics overlay (lon/lat order now because of course it is)
             Point point = new Point(property.getLocation().getLongitude(),property.getLocation().getLatitude(), SpatialReferences.getWgs84());
 
             //create graphic using the point and the color graphic
-            Graphic pointGraphic = new Graphic(point, symbol);
-
-            overlay.getGraphics().add(pointGraphic);
-
-
+            graphics.add(new Graphic(point, symbol));
         }
+        return graphics;
+    }
+
+    /**
+     * Returns a list of graphics to add to the map overlay when given a list of bus stops and a colour to display the
+     * bus stop markers in.
+     * example usage: graphicsOverlay.getGraphics().addAll(getOverlayForBus(busStops, Color.ORANGE));
+     * @param busStops A list of BusStops objects
+     * @param color a Color object
+     * @return a list of Graphics objects that can be added to the map using overlay.getGraphics().add(pointGraphic);
+     */
+    private List<Graphic> getOverlayForBus(List<BusStops> busStops, Color color) {
+        //create symbol to put on that point
+        SimpleMarkerSymbol symbol = new SimpleMarkerSymbol(SimpleMarkerSymbol.Style.CIRCLE, color, 4);
+
+        //create list to hold graphics
+        List<Graphic> graphics = new ArrayList<>();
+
+        for (BusStops busStop : busStops) {
+            //add point to graphics overlay (lon/lat order now because of course it is)
+            Point point = new Point(busStop.getLongitude(),busStop.getLatitude(), SpatialReferences.getWgs84());
+
+            //create graphic using the point and the color graphic
+            graphics.add(new Graphic(point, symbol));
+        }
+        return graphics;
     }
 
     public void showAlert(String message) {
