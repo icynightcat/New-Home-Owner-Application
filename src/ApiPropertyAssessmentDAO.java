@@ -214,10 +214,20 @@ public class ApiPropertyAssessmentDAO implements PropertyAssessmentDAO {
         return getListFrom(url);
     }
 
+    @Override
+    public HashMap<String, Integer> makeNeighbourhoodAssessments(String neighbourhood) {
+        return null;
+    }
+
     public List<PropertyAssessment> getByAssessmentClass(String assessmentClass) {
         assessmentClass = assessmentClass.toUpperCase();
         String url = "mill_class_1 = '" + assessmentClass + "' OR mill_class_2 = '" + assessmentClass + "' OR mill_class_3 = '" + assessmentClass + "'";
 
         return getListFrom(url);
+    }
+
+    @Override
+    public List<String> getNeighbourhoodLists() {
+        return null;
     }
 }

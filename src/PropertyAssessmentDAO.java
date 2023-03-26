@@ -56,11 +56,24 @@ public interface PropertyAssessmentDAO {
     List<PropertyAssessment> getByNeighbourhood(String neighbourhood);
 
     /**
+     * makes hash map for bar graph
+     * @param neighbourhood the neighbourhood to collect property information about
+     * @return a hash map of assessments values
+     */
+    HashMap<String, Integer> makeNeighbourhoodAssessments(String neighbourhood);
+
+    /**
      * returns a list of PropertyAssessment objects from this PropertyData object which have a given assessment class
      * @param assessmentClass the assessment class you want to get a list of properties in
      * @return a list of PropertyAssessments of properties in the assessment class
      */
     List<PropertyAssessment> getByAssessmentClass(String assessmentClass);
+
+    /**
+     * returns a list of neighbourhood names from a given data source
+     * @return a list of neighbourhoods
+     */
+    List<String> getNeighbourhoodLists();
 
 
 }
