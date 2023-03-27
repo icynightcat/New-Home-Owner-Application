@@ -11,12 +11,17 @@ import com.esri.arcgisruntime.symbology.SimpleMarkerSymbol;
 import javafx.application.Application;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
+import javafx.scene.Group;
 import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.chart.BarChart;
 import javafx.scene.chart.CategoryAxis;
@@ -32,6 +37,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
+import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -113,15 +119,11 @@ public class UserInterface extends Application {
             newWindow2.setX(primaryStage.getX() + 50);
             newWindow2.setY(primaryStage.getY() + 25);
 
+            //making the side stuff
             thirdLayout.setLeft(addVBox2(newWindow2));
-            thirdLayout.setCenter(addVBox());
-
-            //making the table view of all neighbourhoods
-            //thirdLayout.setLeft(addVBoxNeighbours(neighbourhoods));
 
             //making the bar chart
-
-            //making the side stuff
+            thirdLayout.setCenter(addVBox());
 
             //showing bus stops
 
@@ -469,17 +471,21 @@ public class UserInterface extends Application {
 
     }
 
+    /**
+     * This creates bar chart for the Edmonton Neighbourhood picked
+     * @return a v box with a bar chart
+     */
     private Node addVBox() {
         VBox bar = new VBox();
         bar.setPadding(new Insets(10));
         bar.setSpacing(8);
         //bar.setStyle("-fx-background-color: #D8BFD8;"); //thistle
 
+        //this creates title for bar graph
         Label chartTitle = new Label("Assessment Values in Neighbourhood");
         chartTitle.setFont(new Font("Arial", 15));
         chartTitle.setStyle("-fx-font-weight: bold; -fx-text-fill: #540054");
         bar.getChildren().add(chartTitle);
-
 
         //x axis
         CategoryAxis x = new CategoryAxis();
@@ -489,21 +495,26 @@ public class UserInterface extends Application {
         NumberAxis y = new NumberAxis();
         y.setLabel("Count");
 
+        //creating bar chart
         bc = new BarChart(x, y);
-        //XYChart.Series ds = new XYChart.Series();
 
+        //adding bar chart to vbox
         bar.getChildren().add(bc);
 
         return bar;
     }
 
+    /**
+     * This creates a list view for Edmonton Neighbourhoods and adds data to bar graph
+     * @param newWindow2 the screen you want to create the listview on
+     * @return a v box with a list view
+     */
     private Node addVBox2(Stage newWindow2) {
         ObservableList<String> neighbourhoodDisplay;
 
         VBox menu = new VBox();
         menu.setPadding(new Insets(15));
         menu.setSpacing(8);
-        //menu.setStyle("-fx-background-color: #D8BFD8;"); //thistle
 
         //making list view of neighbourhoods
         Label tableTitle = new Label("Edmonton Neighbourhoods");
@@ -511,6 +522,7 @@ public class UserInterface extends Application {
         tableTitle.setStyle("-fx-font-weight: bold; -fx-text-fill: #540054");
         menu.getChildren().add(tableTitle);
 
+        //making the list view
         List<String> neighbourhoods = new ArrayList<String>();
 
         try {
@@ -527,7 +539,7 @@ public class UserInterface extends Application {
 
         menu.getChildren().add(listView);
 
-        //show neighbourhoods function
+        //send neighbourhood button
         Button submit = new Button("Check Neighbourhood");
         submit.setMaxWidth(Double.MAX_VALUE);
         submit.setFont(new Font("Arial",12));
@@ -540,7 +552,7 @@ public class UserInterface extends Application {
                     chosenNeighbourhood = selectedItem.toString();
                     System.out.println(chosenNeighbourhood);
 
-                    HashMap<String, Integer> assessmentsValues = new LinkedHashMap<>();
+                    HashMap<String, Integer> assessmentsValues;
 
                     bc.getData().clear();
                     bc.layout();
@@ -549,14 +561,13 @@ public class UserInterface extends Application {
                     for (String i : assessmentsValues.keySet()){
                         String ranges = i;
                         int value = assessmentsValues.get(i);
+                        if (value!= 0) {
                             XYChart.Data<String, Integer> b = new XYChart.Data<>(ranges, value);
+                            Label cx = new Label(String.valueOf(value));
                             series1.getData().add(b);
-                            //bc.getData().add(series1);
+                        }
                     }
                     bc.getData().add(series1);
-
-                    //bc.getData().add(new XYChart.Data("Samsung", 33));
-                    //bc.getData().add(new XYChart.Data("Xiaomi"  , 25));
                 };
 
         submit.setOnAction(showNeighbourhoods);
