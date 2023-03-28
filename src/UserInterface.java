@@ -15,6 +15,7 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.chart.BarChart;
@@ -471,6 +472,7 @@ public class UserInterface extends Application {
         VBox bar = new VBox();
         bar.setPadding(new Insets(10));
         bar.setSpacing(8);
+        bar.setAlignment(Pos.CENTER);
         //bar.setStyle("-fx-background-color: #D8BFD8;"); //thistle
 
         //this creates title for bar graph
@@ -489,6 +491,7 @@ public class UserInterface extends Application {
 
         //creating bar chart
         bc = new BarChart(x, y);
+        bc.setMaxHeight(550);
 
         //adding bar chart to vbox
         bar.getChildren().add(bc);
@@ -526,7 +529,7 @@ public class UserInterface extends Application {
         neighbourhoodDisplay = observableArrayList(properties);
 
         final ListView listView = new ListView(neighbourhoodDisplay);
-        listView.setPrefSize(200, 250);
+        listView.setPrefSize(200, 500);
         listView.setEditable(true);
 
         menu.getChildren().add(listView);
@@ -557,6 +560,7 @@ public class UserInterface extends Application {
                             XYChart.Data<String, Integer> b = new XYChart.Data<>(ranges, value);
                             Label cx = new Label(String.valueOf(value));
                             series1.getData().add(b);
+                            //series1.setName(String.valueOf(value));
                         }
                     }
                     bc.getData().add(series1);
