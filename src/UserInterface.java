@@ -51,6 +51,8 @@ public class UserInterface extends Application {
     String chosenNeighbourhood;
 
     BarChart<String,Integer> bc;
+
+
     @Override
     public void start(final Stage primaryStage) {
 
@@ -93,6 +95,106 @@ public class UserInterface extends Application {
         //REF: https://developers.arcgis.com/java/maps-2d/tutorials/add-a-point-line-and-polygon/
         GraphicsOverlay graphicsOverlay = new GraphicsOverlay();
         mapView.getGraphicsOverlays().add(graphicsOverlay);
+
+
+
+        //todo remove addvbox 3 from the functions as it does nothing==================================
+
+
+        //add separator to split find and select
+        Separator separator1 = new Separator();
+
+
+        //add Neighbourhood drop down
+        Label labelNei = new Label("Neighbourhood:");
+        labelNei.setStyle("-fx-font-weight: bold; -fx-text-fill: #483D8B; -fx-border-width: 1.5px;" );
+        labelNei.setLayoutX(10);
+        labelNei.setLayoutY(130);
+
+        ComboBox<String> neightbourDropDown = new ComboBox<>();
+        neightbourDropDown.setPrefWidth(200);
+        neightbourDropDown.setStyle("-fx-font-weight: bold; -fx-text-fill: #483D8B; -fx-border-color: #540054; -fx-border-width: 1.5px;" );
+        neightbourDropDown.setLayoutX(10);
+        neightbourDropDown.setLayoutY(150);
+
+
+
+        //add assessment class drop down
+        Label labelAsCla = new Label("Assessment Class:");
+        labelAsCla.setStyle("-fx-font-weight: bold; -fx-text-fill: #483D8B; -fx-border-width: 1.5px;" );
+        labelAsCla.setLayoutX(10);
+        labelAsCla.setLayoutY(80);
+
+        ComboBox<String> assessmentClassDropDown = new ComboBox<>();
+        assessmentClassDropDown.setPrefWidth(200);
+        assessmentClassDropDown.setStyle("-fx-font-weight: bold; -fx-text-fill: #483D8B; -fx-border-color: #540054; -fx-border-width: 1.5px;" );
+        assessmentClassDropDown.setLayoutX(10);
+        assessmentClassDropDown.setLayoutY(100);
+
+
+        //add ward drop down
+        Label labelwar = new Label("Ward:");
+        labelwar.setStyle("-fx-font-weight: bold; -fx-text-fill: #483D8B; -fx-border-width: 1.5px;" );
+        labelwar.setLayoutX(10);
+        labelwar.setLayoutY(180);
+
+        ComboBox<String> wardDropDown = new ComboBox<>();
+        wardDropDown.setPrefWidth(200);
+        wardDropDown.setStyle("-fx-font-weight: bold; -fx-text-fill: #483D8B; -fx-border-color: #540054; -fx-border-width: 1.5px;" );
+        wardDropDown.setLayoutX(10);
+        wardDropDown.setLayoutY(200);
+
+
+        //add price range drop down
+        Label labelpri = new Label("price range:");
+        labelpri.setStyle("-fx-font-weight: bold; -fx-text-fill: #483D8B; -fx-border-width: 1.5px;" );
+        labelpri.setLayoutX(10);
+        labelpri.setLayoutY(230);
+
+        ComboBox<String> priceDropDown = new ComboBox<>();
+        priceDropDown.setPrefWidth(200);
+        priceDropDown.setStyle("-fx-font-weight: bold; -fx-text-fill: #483D8B; -fx-border-color: #540054; -fx-border-width: 1.5px;" );
+        priceDropDown.setLayoutX(10);
+        priceDropDown.setLayoutY(250);
+
+
+        /*
+        //drop down for assessment class
+        AssessmentClassDropDown = new ComboBox<>();
+        AssessmentClassDropDown.setMaxWidth(Double.MAX_VALUE);
+        AssessmentClassDropDown.getItems().addAll("");
+        */
+
+        //Assessed Value Range label
+        final Label labelValue = new Label("Assessed Value Range:");
+        labelValue.setFont(Font.font("Times", 15));
+
+        /**
+        //Two boxes for min and max value
+        MinField = new TextField(); //min box
+        MinField.setPromptText("Min Value");
+        MaxField = new TextField(); //max box
+        MaxField.setPromptText("Max Value");
+        hBox1.setHgrow(MinField, Priority.ALWAYS);
+        MinField.setMaxWidth(Double.MAX_VALUE);
+        hBox1.setHgrow(MaxField, Priority.ALWAYS);
+        MaxField.setMaxWidth(Double.MAX_VALUE);
+        //add the text fields to the hbox
+        hBox1.getChildren().addAll(MinField, MaxField);
+        */
+
+        //buttons for search and reset
+        Button SearchButton = new Button("Search"); //This is just slightly bigger
+        SearchButton.setPrefWidth(200);
+        SearchButton.setStyle("-fx-font-weight: bold; -fx-text-fill: #483D8B; -fx-border-color: #540054; -fx-border-width: 1.5px;" );
+        SearchButton.setLayoutX(10);
+        SearchButton.setLayoutY(10);
+
+
+
+        //todo spacing for new buttons REMOVE ADDVBOX3========================================================
+
+
 
         statButton.setOnAction(event -> {
             //Initialize window
@@ -408,6 +510,16 @@ public class UserInterface extends Application {
         root.getChildren().add(statButton);
         root.getChildren().add(mapView);
         //root.setLeft(button);
+        root.getChildren().add(assessmentClassDropDown);
+        root.getChildren().add(neightbourDropDown);
+        root.getChildren().add(SearchButton);
+        root.getChildren().add(labelNei);
+        root.getChildren().add(labelAsCla);
+        root.getChildren().add(labelwar);
+        root.getChildren().add(wardDropDown);
+        root.getChildren().add(labelpri);
+        root.getChildren().add(priceDropDown);
+        //TODO ADD DROPDOWNS TO HERE SAM, it is possible to do .addAll(var, var, var);
 
         Scene scene = new Scene(root, 1250, 600);
 
@@ -722,6 +834,7 @@ public class UserInterface extends Application {
         return table;
 
     }
+
 
     public static void main(String[] args) {
         launch();
