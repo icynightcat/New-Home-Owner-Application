@@ -45,13 +45,29 @@ import static javafx.collections.FXCollections.observableArrayList;
 public class UserInterface extends Application {
 
     PropertyAssessmentDAO dao = null;
+
     String source = "n/a";
 
     String chosenNeighbourhood;
 
     BarChart<String,Integer> bc;
+
+    final Stage[] legendWindow = new Stage[1];
+
+
+
     @Override
     public void start(final Stage primaryStage) {
+
+        //create list for legend labels
+        List<LegendLabel> legendLabels = new ArrayList<>();
+        legendWindow[0] = spawnLegend(primaryStage, legendLabels);
+
+        try {
+            dao = new CsvPropertyAssessmentDAO();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
         //table button
         Button tableButton = new Button("Open Table");
@@ -75,8 +91,6 @@ public class UserInterface extends Application {
        // ArcGISRuntimeEnvironment.setInstallDirectory("C:\\Users\\ayesh\\Desktop\\arcgis-maps-sdk-java-200.0.0");
         ArcGISRuntimeEnvironment.setApiKey(apiKey);
 
-        //create list for legend labels
-        List<LegendLabel> legendLabels = new ArrayList<>();
 
         //create mapView and map
         MapView mapView = new MapView();
@@ -92,6 +106,197 @@ public class UserInterface extends Application {
         //REF: https://developers.arcgis.com/java/maps-2d/tutorials/add-a-point-line-and-polygon/
         GraphicsOverlay graphicsOverlay = new GraphicsOverlay();
         mapView.getGraphicsOverlays().add(graphicsOverlay);
+
+
+
+        //todo remove addvbox 3 from the functions as it does nothing==================================
+
+
+        //add separator to split find and select
+        Separator separator1 = new Separator();
+
+
+        //add Neighbourhood drop down
+        Label labelNei = new Label("Neighbourhood:");
+        labelNei.setStyle("-fx-font-weight: bold; -fx-text-fill: #483D8B; -fx-border-width: 1.5px;" );
+        labelNei.setLayoutX(10);
+        labelNei.setLayoutY(130);
+
+        ComboBox<String> neightbourDropDown = new ComboBox<>();
+        neightbourDropDown.setItems(FXCollections.observableList(dao.getNeighbourhoodLists()));
+        neightbourDropDown.setPrefWidth(200);
+        neightbourDropDown.setStyle("-fx-font-weight: bold; -fx-text-fill: #483D8B; -fx-border-color: #540054; -fx-border-width: 1.5px;" );
+        neightbourDropDown.setLayoutX(10);
+        neightbourDropDown.setLayoutY(150);
+
+
+        //add assessment class drop down
+        Label labelAsCla = new Label("Assessment Class:");
+        labelAsCla.setStyle("-fx-font-weight: bold; -fx-text-fill: #483D8B; -fx-border-width: 1.5px;" );
+        labelAsCla.setLayoutX(10);
+        labelAsCla.setLayoutY(80);
+
+        ComboBox<String> assessmentClassDropDown = new ComboBox<>();
+        assessmentClassDropDown.setItems(FXCollections.observableList(dao.getAssessmentClasses()));
+        assessmentClassDropDown.setPrefWidth(200);
+        assessmentClassDropDown.setStyle("-fx-font-weight: bold; -fx-text-fill: #483D8B; -fx-border-color: #540054; -fx-border-width: 1.5px;" );
+        assessmentClassDropDown.setLayoutX(10);
+        assessmentClassDropDown.setLayoutY(100);
+
+
+        //add ward drop down
+        Label labelwar = new Label("Ward:");
+        labelwar.setStyle("-fx-font-weight: bold; -fx-text-fill: #483D8B; -fx-border-width: 1.5px;" );
+        labelwar.setLayoutX(10);
+        labelwar.setLayoutY(180);
+
+        ComboBox<String> wardDropDown = new ComboBox<>();
+        wardDropDown.setItems(FXCollections.observableList(dao.getWards()));
+        wardDropDown.setPrefWidth(200);
+        wardDropDown.setStyle("-fx-font-weight: bold; -fx-text-fill: #483D8B; -fx-border-color: #540054; -fx-border-width: 1.5px;" );
+        wardDropDown.setLayoutX(10);
+        wardDropDown.setLayoutY(200);
+
+
+        Button priceDropDown = new Button("Show Prices");
+        priceDropDown.setPrefWidth(200);
+        priceDropDown.setStyle("-fx-font-weight: bold; -fx-text-fill: #483D8B; -fx-border-color: #540054; -fx-border-width: 1.5px;" );
+        priceDropDown.setLayoutX(10);
+        priceDropDown.setLayoutY(240);
+
+
+        //buttons for all search
+        Button allWard = new Button("All Wards");
+        allWard.setPrefWidth(200);
+        allWard.setStyle("-fx-font-weight: bold; -fx-text-fill: #483D8B; -fx-border-color: #540054; -fx-border-width: 1.5px;" );
+        allWard.setLayoutX(10);
+        allWard.setLayoutY(300);
+
+        Button allNei = new Button("All Neighbourhoods");
+        allNei.setPrefWidth(200);
+        allNei.setStyle("-fx-font-weight: bold; -fx-text-fill: #483D8B; -fx-border-color: #540054; -fx-border-width: 1.5px;" );
+        allNei.setLayoutX(10);
+        allNei.setLayoutY(340);
+
+        Button allClas = new Button("All Assessment Classes");
+        allClas.setPrefWidth(200);
+        allClas.setStyle("-fx-font-weight: bold; -fx-text-fill: #483D8B; -fx-border-color: #540054; -fx-border-width: 1.5px;" );
+        allClas.setLayoutX(10);
+        allClas.setLayoutY(380);
+
+
+        //Assessed Value Range label
+        final Label labelValue = new Label("Assessed Value Range:");
+        labelValue.setFont(Font.font("Times", 15));
+
+        /**
+        //Two boxes for min and max value
+        MinField = new TextField(); //min box
+        MinField.setPromptText("Min Value");
+        MaxField = new TextField(); //max box
+        MaxField.setPromptText("Max Value");
+        hBox1.setHgrow(MinField, Priority.ALWAYS);
+        MinField.setMaxWidth(Double.MAX_VALUE);
+        hBox1.setHgrow(MaxField, Priority.ALWAYS);
+        MaxField.setMaxWidth(Double.MAX_VALUE);
+        //add the text fields to the hbox
+        hBox1.getChildren().addAll(MinField, MaxField);
+        */
+
+        //buttons for search and reset
+        Button SearchButton = new Button("Search"); //This is just slightly bigger
+        SearchButton.setPrefWidth(200);
+        SearchButton.setStyle("-fx-font-weight: bold; -fx-text-fill: #483D8B; -fx-border-color: #540054; -fx-border-width: 1.5px;" );
+        SearchButton.setLayoutX(10);
+        SearchButton.setLayoutY(10);
+
+
+        priceDropDown.setOnAction(event -> {
+
+            if(neightbourDropDown.getValue() != null) {
+                neightbourDropDown.getSelectionModel().clearSelection();
+            }
+            if(assessmentClassDropDown.getValue() != null) {
+                assessmentClassDropDown.getSelectionModel().clearSelection();
+            }
+            if(wardDropDown.getValue() != null) {
+                wardDropDown.getSelectionModel().clearSelection();
+            }
+            HashMap<String, List<PropertyAssessment>> costRange = new HashMap<>();
+
+            dao.getCostRange(costRange);
+
+            Random rand = new Random();
+            int i = 0;
+            Integer[][] color = new Integer[7][3];
+            color[0] = new Integer[]{237, 41, 56}; //dark red
+            color[1] = new Integer[]{255, 140, 1}; //light red
+            color[2] = new Integer[]{255, 231, 51}; //orange
+            color[3] = new Integer[]{123, 182, 98}; //yellow mustard
+            color[4] = new Integer[]{2, 78, 27}; //lime green
+            color[5] = new Integer[]{0, 0, 255}; //green
+            color[6] = new Integer[]{102, 0, 153}; //dark green
+            for( String key : costRange.keySet()){
+                graphicsOverlay.getGraphics().addAll(getOverlayForProps(costRange.get(key),
+                        Color.rgb((color[i][0]), (color[i][1]), (color[i][2]))));
+                i = i + 1;
+            }
+
+
+        });
+
+        SearchButton.setOnAction(event -> {
+            legendWindow[0].close();
+            graphicsOverlay.getGraphics().clear();
+            String nei = neightbourDropDown.getValue();
+            String asses = assessmentClassDropDown.getValue();
+            String ward = wardDropDown.getValue();
+            List<PropertyAssessment> somethingCool = new ArrayList<>();
+            if(nei != null){
+                somethingCool = dao.getByNeighbourhood(nei);
+                graphicsOverlay.getGraphics().addAll(getOverlayForProps(somethingCool, Color.BLUE));
+                legendWindow[0] = spawnLegend(primaryStage, Arrays.asList(new LegendLabel(nei, Color.BLUE)));
+            } else if (asses != null) {
+                somethingCool = dao.getByAssessmentClass(asses);
+                graphicsOverlay.getGraphics().addAll(getOverlayForProps(somethingCool, Color.RED));
+                legendWindow[0] = spawnLegend(primaryStage, Arrays.asList(new LegendLabel(asses, Color.RED)));
+            } else if (ward != null) {
+                somethingCool = dao.getPropertiesInWard(ward);
+                graphicsOverlay.getGraphics().addAll(getOverlayForProps(somethingCool, Color.GREEN));
+                legendWindow[0] = spawnLegend(primaryStage, Arrays.asList(new LegendLabel(ward, Color.GREEN)));
+
+            }  //money
+        });
+
+        neightbourDropDown.setOnMouseClicked(actionEvent -> {
+            if(assessmentClassDropDown.getValue() != null) {
+                assessmentClassDropDown.getSelectionModel().clearSelection();
+            }
+            if(wardDropDown.getValue() != null) {
+                wardDropDown.getSelectionModel().clearSelection();
+            }
+        });
+        assessmentClassDropDown.setOnMouseClicked(actionEvent -> {
+            if(neightbourDropDown.getValue() != null) {
+                neightbourDropDown.getSelectionModel().clearSelection();
+            }
+            if(wardDropDown.getValue() != null) {
+                wardDropDown.getSelectionModel().clearSelection();
+            }
+
+        });
+        wardDropDown.setOnMouseClicked(actionEvent -> {
+            if(neightbourDropDown.getValue() != null) {
+                neightbourDropDown.getSelectionModel().clearSelection();
+            }
+            if(assessmentClassDropDown.getValue() != null) {
+                assessmentClassDropDown.getSelectionModel().clearSelection();
+            }
+        });
+
+        //todo spacing for new buttons REMOVE ADDVBOX3========================================================
+
+
 
         statButton.setOnAction(event -> {
             //Initialize window
@@ -403,6 +608,17 @@ public class UserInterface extends Application {
         root.getChildren().add(statButton);
         root.getChildren().add(mapView);
         //root.setLeft(button);
+        root.getChildren().add(assessmentClassDropDown);
+        root.getChildren().add(neightbourDropDown);
+        root.getChildren().add(SearchButton);
+        root.getChildren().add(labelNei);
+        root.getChildren().add(labelAsCla);
+        root.getChildren().add(labelwar);
+        root.getChildren().add(wardDropDown);
+        root.getChildren().add(priceDropDown);
+        root.getChildren().addAll(allWard, allNei, allClas);
+
+        //TODO ADD DROPDOWNS TO HERE SAM, it is possible to do .addAll(var, var, var);
 
         Scene scene = new Scene(root, 1250, 600);
 
@@ -411,16 +627,10 @@ public class UserInterface extends Application {
         root.setStyle("-fx-background-color: #F8F8FF;");
         primaryStage.show();
 
-
+        /*
         //Example for the legend usage -----------------------------
-        legendLabels.add(new LegendLabel("Test", Color.ORANGE));
-        legendLabels.add(new LegendLabel("MacEwan", Color.PURPLE));
-        legendLabels.add(new LegendLabel("Me", Color.GREEN));
-        legendLabels.add(new LegendLabel("This", Color.GRAY));
-        legendLabels.add(new LegendLabel("Location", Color.YELLOW));
 
         //this is how I have to initialize it, so I can access it in a button (idk its weird)
-        final Stage[] legendWindow = new Stage[1];
         legendWindow[0] = spawnLegend(primaryStage, legendLabels);
         //call legendWindow.close() before changing the legend and making a new one
         Button closeLegendButton = new Button("Close Legend");
@@ -436,6 +646,8 @@ public class UserInterface extends Application {
         //Example for the legend usage -----------------------------
 
         //testing adding properties and add bus to map
+        */
+
         /*
         try {
             dao = new CsvPropertyAssessmentDAO();
@@ -580,7 +792,7 @@ public class UserInterface extends Application {
      */
     private Stage spawnLegend(Stage primaryStage, List<LegendLabel> labels){
         GridPane legendPane = new GridPane();
-        Scene legend = new Scene(legendPane, 150, 250);
+        Scene legend = new Scene(legendPane, 200, 250);
         Font roboto = Font.font("Roboto", FontWeight.BOLD, 15);
 
         //set properties of the GridPane
@@ -599,7 +811,7 @@ public class UserInterface extends Application {
         legendWindow.initOwner(primaryStage);
 
         // Set position of second window, related to primary window.
-        legendWindow.setX(primaryStage.getX() + primaryStage.getWidth() - 150);
+        legendWindow.setX(primaryStage.getX() + primaryStage.getWidth() - 200);
         legendWindow.setY(primaryStage.getY() + primaryStage.getHeight() - 250);
 
         //for the grid pane, so each entry can be in the right y
@@ -642,11 +854,13 @@ public class UserInterface extends Application {
         List<Graphic> graphics = new ArrayList<>();
 
         for (PropertyAssessment property : properties) {
-            //add point to graphics overlay (lon/lat order now because of course it is)
-            Point point = new Point(property.getLocation().getLongitude(),property.getLocation().getLatitude(), SpatialReferences.getWgs84());
+            if(property != null){
+                //add point to graphics overlay (lon/lat order now because of course it is)
+                Point point = new Point(property.getLocation().getLongitude(),property.getLocation().getLatitude(), SpatialReferences.getWgs84());
 
-            //create graphic using the point and the color graphic
-            graphics.add(new Graphic(point, symbol));
+                //create graphic using the point and the color graphic
+                graphics.add(new Graphic(point, symbol));
+            }
         }
         return graphics;
     }
@@ -729,6 +943,7 @@ public class UserInterface extends Application {
         return table;
 
     }
+
 
     public static void main(String[] args) {
         launch();

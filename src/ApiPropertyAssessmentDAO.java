@@ -230,4 +230,19 @@ public class ApiPropertyAssessmentDAO implements PropertyAssessmentDAO {
     public List<String> getNeighbourhoodLists() {
         return null;
     }
+
+    @Override
+    public List<String> getWards() {
+        return null;
+    }
+
+    @Override
+    public List<PropertyAssessment> getPropertiesInWard(String ward) {
+        return null;
+    }
+
+    @Override
+    public void getCostRange(HashMap<String, List<PropertyAssessment>> costRange) {
+
+    }
 }
