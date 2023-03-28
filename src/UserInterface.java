@@ -9,11 +9,19 @@ import com.esri.arcgisruntime.mapping.view.GraphicsOverlay;
 import com.esri.arcgisruntime.mapping.view.MapView;
 import com.esri.arcgisruntime.symbology.SimpleMarkerSymbol;
 import javafx.application.Application;
+import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
+import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.chart.BarChart;
+import javafx.scene.chart.CategoryAxis;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -30,11 +38,7 @@ import javafx.stage.StageStyle;
 
 import java.io.IOException;
 import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.*;
 
 import static javafx.collections.FXCollections.observableArrayList;
 
@@ -44,7 +48,9 @@ public class UserInterface extends Application {
     PropertyAssessmentDAO dao = null;
     String source = "n/a";
 
+    String chosenNeighbourhood;
 
+    BarChart<String,Integer> bc;
     @Override
     public void start(final Stage primaryStage) {
 
@@ -89,6 +95,7 @@ public class UserInterface extends Application {
         mapView.getGraphicsOverlays().add(graphicsOverlay);
 
         statButton.setOnAction(event -> {
+            //Initialize window
             BorderPane thirdLayout = new BorderPane();
             Scene thirdScene = new Scene(thirdLayout, 1100, 600);
             Stage newWindow2 = new Stage();
@@ -106,6 +113,19 @@ public class UserInterface extends Application {
             newWindow2.setX(primaryStage.getX() + 50);
             newWindow2.setY(primaryStage.getY() + 25);
 
+            thirdLayout.setLeft(addVBox2(newWindow2));
+            thirdLayout.setCenter(addVBox());
+
+            //making the table view of all neighbourhoods
+            //thirdLayout.setLeft(addVBoxNeighbours(neighbourhoods));
+
+            //making the bar chart
+
+            //making the side stuff
+
+            //showing bus stops
+
+            // show window
             newWindow2.show();
 
         });
@@ -449,6 +469,101 @@ public class UserInterface extends Application {
 
     }
 
+    private Node addVBox() {
+        VBox bar = new VBox();
+        bar.setPadding(new Insets(10));
+        bar.setSpacing(8);
+        //bar.setStyle("-fx-background-color: #D8BFD8;"); //thistle
+
+        Label chartTitle = new Label("Assessment Values in Neighbourhood");
+        chartTitle.setFont(new Font("Arial", 15));
+        chartTitle.setStyle("-fx-font-weight: bold; -fx-text-fill: #540054");
+        bar.getChildren().add(chartTitle);
+
+
+        //x axis
+        CategoryAxis x = new CategoryAxis();
+        x.setLabel("Assessment Values");
+        x.setAnimated(false);
+        //y axis
+        NumberAxis y = new NumberAxis();
+        y.setLabel("Count");
+
+        bc = new BarChart(x, y);
+        //XYChart.Series ds = new XYChart.Series();
+
+        bar.getChildren().add(bc);
+
+        return bar;
+    }
+
+    private Node addVBox2(Stage newWindow2) {
+        ObservableList<String> neighbourhoodDisplay;
+
+        VBox menu = new VBox();
+        menu.setPadding(new Insets(15));
+        menu.setSpacing(8);
+        //menu.setStyle("-fx-background-color: #D8BFD8;"); //thistle
+
+        //making list view of neighbourhoods
+        Label tableTitle = new Label("Edmonton Neighbourhoods");
+        tableTitle.setFont(new Font("Arial", 15));
+        tableTitle.setStyle("-fx-font-weight: bold; -fx-text-fill: #540054");
+        menu.getChildren().add(tableTitle);
+
+        List<String> neighbourhoods = new ArrayList<String>();
+
+        try {
+            dao = new CsvPropertyAssessmentDAO("Property_Assessment_Data_2022.csv");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        List<String> properties = dao.getNeighbourhoodLists();
+        neighbourhoodDisplay = observableArrayList(properties);
+
+        final ListView listView = new ListView(neighbourhoodDisplay);
+        listView.setPrefSize(200, 250);
+        listView.setEditable(true);
+
+        menu.getChildren().add(listView);
+
+        //show neighbourhoods function
+        Button submit = new Button("Check Neighbourhood");
+        submit.setMaxWidth(Double.MAX_VALUE);
+        submit.setFont(new Font("Arial",12));
+        submit.setStyle("-fx-font-weight: bold; -fx-text-fill: #483D8B; -fx-border-color: #483D8B; -fx-border-width: 1.5px;" );
+        menu.getChildren().add(submit);
+
+        EventHandler<ActionEvent> showNeighbourhoods =
+                E -> {
+                    Object selectedItem = listView.getSelectionModel().getSelectedItem();
+                    chosenNeighbourhood = selectedItem.toString();
+                    System.out.println(chosenNeighbourhood);
+
+                    HashMap<String, Integer> assessmentsValues = new LinkedHashMap<>();
+
+                    bc.getData().clear();
+                    bc.layout();
+                    XYChart.Series<String, Integer> series1 = new XYChart.Series<>();
+                    assessmentsValues = dao.makeNeighbourhoodAssessments(chosenNeighbourhood);
+                    for (String i : assessmentsValues.keySet()){
+                        String ranges = i;
+                        int value = assessmentsValues.get(i);
+                            XYChart.Data<String, Integer> b = new XYChart.Data<>(ranges, value);
+                            series1.getData().add(b);
+                            //bc.getData().add(series1);
+                    }
+                    bc.getData().add(series1);
+
+                    //bc.getData().add(new XYChart.Data("Samsung", 33));
+                    //bc.getData().add(new XYChart.Data("Xiaomi"  , 25));
+                };
+
+        submit.setOnAction(showNeighbourhoods);
+
+        return menu;
+    }
+
     /**
      * given a list of LegendLabels, this creates a new screen in the bottom left corner of the current one that shows
      * the legend created from the LegendLabels
@@ -560,6 +675,7 @@ public class UserInterface extends Application {
         alert.setHeaderText(message);
         alert.showAndWait();
     }
+
 
     private TableView<PropertyAssessment> makeTable(Stage primaryStage, ObservableList<PropertyAssessment> propertyDisplay) {
         TableView<PropertyAssessment> table = new TableView<>();

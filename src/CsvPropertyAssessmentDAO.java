@@ -2,10 +2,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 import static java.lang.Integer.MAX_VALUE;
 
@@ -178,6 +175,22 @@ public class CsvPropertyAssessmentDAO implements PropertyAssessmentDAO {
     }
 
     @Override
+    public List<String> getNeighbourhoodLists() {
+        List<String> neighbourhoods = new ArrayList<>();
+
+        for (int i = 0; i < properties.size(); i++) {
+            if (!neighbourhoods.contains(properties.get(i).getNeighbourhood().getNeighbourhood())) {
+                if (!properties.get(i).getNeighbourhood().getNeighbourhood().equals("")) {
+                    neighbourhoods.add(properties.get(i).getNeighbourhood().getNeighbourhood());
+                }
+            }
+        }
+        Collections.sort(neighbourhoods);
+        //System.out.println(neighbourhoods);
+        return neighbourhoods;
+    }
+
+    @Override
     public List<PropertyAssessment> getByAddress(String address) {
         String finalAddress = address.toUpperCase();
 
@@ -200,12 +213,105 @@ public class CsvPropertyAssessmentDAO implements PropertyAssessmentDAO {
         return null;
     }
 
+
     public List<PropertyAssessment> getByNeighbourhood(String neighbourhood){
         String finalNeighbourhood = neighbourhood.toUpperCase();
 
         return getProperties().stream().filter(d->d.getNeighbourhood().getNeighbourhood().contains(finalNeighbourhood)).toList();
     }
 
+    @Override
+    public HashMap<String, Integer> makeNeighbourhoodAssessments(String neighbourhood){
+        String finalNeighbourhood = neighbourhood.toUpperCase();
+        List<PropertyAssessment> filteredNeighbourhoods = new ArrayList<>();
+        HashMap<String, Integer> assessmentsValues = new LinkedHashMap<>();
+
+        filteredNeighbourhoods = this.getByNeighbourhood(neighbourhood);
+        /*for (int i = 0; i < properties.size(); i++) { //loop through the list and if the neighbourhood matches, then put it in the new list
+            if (properties.get(i).getNeighbourhood().getNeighbourhood().equalsIgnoreCase(neighbourhood)) {
+                filteredNeighbourhoods.add(properties.get(i));
+            }
+        }*/
+
+        int testN = 0; // a temp for the assessed value
+        int maxN = filteredNeighbourhoods.get(0).getAssessedValue(); //sets the assessed value to maxN of the first property in the list
+        for (int i = 1; i < filteredNeighbourhoods.size(); i++) { //start at the second property and if the value being checked is greater than the value saved, then
+            testN = filteredNeighbourhoods.get(i).getAssessedValue();
+            if (testN > maxN) {
+                maxN = testN; //set it as the new max value
+            }
+        }
+
+        int rangeBWNumbers = maxN/15;
+
+        int count1st= 0, count2nd = 0, countThird = 0, countFourth = 0, countFifth = 0, countSixth = 0,
+                countSeventh  = 0, countEight = 0, countNine = 0, countTen = 0, count11 = 0, count12 = 0,
+                count13 = 0, count14 = 0, count15 = 0;
+
+        for (int i = 0; i< filteredNeighbourhoods.size(); i++){
+            if (filteredNeighbourhoods.get(i).getAssessedValue() <= rangeBWNumbers){
+                count1st++;
+            } else if (filteredNeighbourhoods.get(i).getAssessedValue() <= 2 * rangeBWNumbers && filteredNeighbourhoods.get(i).getAssessedValue() > rangeBWNumbers) {
+                count2nd++;
+            } else if (filteredNeighbourhoods.get(i).getAssessedValue() <= 3 *rangeBWNumbers && filteredNeighbourhoods.get(i).getAssessedValue() > 2 * rangeBWNumbers) {
+                countThird++;
+            }
+            else if (filteredNeighbourhoods.get(i).getAssessedValue() <= 4 *rangeBWNumbers && filteredNeighbourhoods.get(i).getAssessedValue() >3 *rangeBWNumbers){
+                countFourth++;
+            }
+            else if (filteredNeighbourhoods.get(i).getAssessedValue() <= 5 *rangeBWNumbers && filteredNeighbourhoods.get(i).getAssessedValue() >4 *rangeBWNumbers){
+                countFifth++;
+            }
+            else if (filteredNeighbourhoods.get(i).getAssessedValue() <= 6 *rangeBWNumbers && filteredNeighbourhoods.get(i).getAssessedValue() >5 *rangeBWNumbers){
+                countSixth++;
+            }
+            else if (filteredNeighbourhoods.get(i).getAssessedValue() <= 7 *rangeBWNumbers && filteredNeighbourhoods.get(i).getAssessedValue() >6 *rangeBWNumbers){
+                countSeventh++;
+            }
+            else if (filteredNeighbourhoods.get(i).getAssessedValue() <= 8 *rangeBWNumbers && filteredNeighbourhoods.get(i).getAssessedValue() >7 *rangeBWNumbers){
+                countEight++;
+            }
+            else if (filteredNeighbourhoods.get(i).getAssessedValue() <= 9 *rangeBWNumbers && filteredNeighbourhoods.get(i).getAssessedValue() >8 *rangeBWNumbers){
+                countNine++;
+            }
+            else if (filteredNeighbourhoods.get(i).getAssessedValue() <= 10 *rangeBWNumbers && filteredNeighbourhoods.get(i).getAssessedValue() >9 *rangeBWNumbers){
+                countTen++;
+            }
+            else if (filteredNeighbourhoods.get(i).getAssessedValue() <= 11 *rangeBWNumbers && filteredNeighbourhoods.get(i).getAssessedValue() >10 *rangeBWNumbers){
+                count11++;
+            }
+            else if (filteredNeighbourhoods.get(i).getAssessedValue() <= 12 *rangeBWNumbers && filteredNeighbourhoods.get(i).getAssessedValue() >11 *rangeBWNumbers){
+                count12++;
+            }
+            else if (filteredNeighbourhoods.get(i).getAssessedValue() <= 13 *rangeBWNumbers && filteredNeighbourhoods.get(i).getAssessedValue() >12 *rangeBWNumbers){
+                count13++;
+            }
+            else if (filteredNeighbourhoods.get(i).getAssessedValue() <= 14 *rangeBWNumbers && filteredNeighbourhoods.get(i).getAssessedValue() >13 *rangeBWNumbers){
+                count14++;
+            }
+            else if (filteredNeighbourhoods.get(i).getAssessedValue() >14 *rangeBWNumbers){
+                count15++;
+            }
+        }
+
+        assessmentsValues.put("$0 - $" + String.valueOf(2*rangeBWNumbers),count1st);
+        assessmentsValues.put("$" + String.valueOf(2*rangeBWNumbers)+ " - $" + String.valueOf(3*rangeBWNumbers), count2nd);
+        assessmentsValues.put("$" + String.valueOf(3*rangeBWNumbers)+ " - $" + String.valueOf(4*rangeBWNumbers), countThird);
+        assessmentsValues.put("$" + String.valueOf(4*rangeBWNumbers)+ " - $" + String.valueOf(5*rangeBWNumbers), countFourth);
+        assessmentsValues.put("$" + String.valueOf(5*rangeBWNumbers)+ " - $" + String.valueOf(6*rangeBWNumbers), countFifth);
+        assessmentsValues.put("$" + String.valueOf(6*rangeBWNumbers)+ " - $" + String.valueOf(7*rangeBWNumbers), countSixth);
+        assessmentsValues.put("$" + String.valueOf(7*rangeBWNumbers)+ " - $" + String.valueOf(8*rangeBWNumbers), countSeventh);
+        assessmentsValues.put("$" + String.valueOf(8*rangeBWNumbers)+ " - $" + String.valueOf(9*rangeBWNumbers), countEight);
+        assessmentsValues.put("$" + String.valueOf(9*rangeBWNumbers)+ " - $" + String.valueOf(10*rangeBWNumbers), countNine);
+        assessmentsValues.put("$" + String.valueOf(11*rangeBWNumbers)+ " - $" + String.valueOf(10*rangeBWNumbers), countTen);
+        assessmentsValues.put("$" + String.valueOf(12*rangeBWNumbers)+ " - $" + String.valueOf(11*rangeBWNumbers), count11);
+        assessmentsValues.put("$" + String.valueOf(13*rangeBWNumbers)+ " - $" + String.valueOf(12*rangeBWNumbers), count12);
+        assessmentsValues.put("$" + String.valueOf(14*rangeBWNumbers)+ " - $" + String.valueOf(13*rangeBWNumbers), count13);
+        assessmentsValues.put("$" + String.valueOf(15*rangeBWNumbers)+ " - $" + String.valueOf(14*rangeBWNumbers), count14);
+        assessmentsValues.put(">$" + String.valueOf(15*rangeBWNumbers), count15);
+
+        return assessmentsValues;
+    }
     public List<PropertyAssessment> getByAssessmentClass(String assessmentClass){
         List<PropertyAssessment> propertiesInClass = new ArrayList<>();
         for(PropertyAssessment property : getProperties()){
