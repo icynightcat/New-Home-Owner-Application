@@ -75,5 +75,20 @@ public interface PropertyAssessmentDAO {
      */
     List<String> getNeighbourhoodLists();
 
+    /**
+     *
+     * @return
+     */
+    List<String> getWards();
+
+    /**
+     *
+     * @param ward
+     * @return
+     */
+    List<PropertyAssessment> getPropertiesInWard(String ward);
+
+
+    void getCostRange(HashMap<String, List<PropertyAssessment>> costRange);
 
 }

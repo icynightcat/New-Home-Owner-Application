@@ -191,6 +191,66 @@ public class CsvPropertyAssessmentDAO implements PropertyAssessmentDAO {
     }
 
     @Override
+    public List<String> getWards() {
+        List<String> wards = new ArrayList<>();
+        for(PropertyAssessment property : getProperties()){
+            String current = property.getNeighbourhood().getWard();
+            if(!wards.contains(current)){
+                wards.add(current);
+            }
+        }
+        return wards;
+    }
+
+    @Override
+    public List<PropertyAssessment> getPropertiesInWard(String ward) {
+        ArrayList<PropertyAssessment> propertiesInWard = new ArrayList<>();
+        for(PropertyAssessment property : getProperties()){
+            if (property.getNeighbourhood().getWard().equalsIgnoreCase(ward)) {
+                propertiesInWard.add(property);
+            }
+        }
+        return propertiesInWard;
+    }
+
+    @Override
+    //each value is from 1 to 7
+    public void getCostRange(HashMap<String, List<PropertyAssessment>> costRange) {
+
+
+        costRange.put("1", new ArrayList<PropertyAssessment>());
+        costRange.put("2", new ArrayList<PropertyAssessment>());
+        costRange.put("3", new ArrayList<PropertyAssessment>());
+        costRange.put("4", new ArrayList<PropertyAssessment>());
+        costRange.put("5", new ArrayList<PropertyAssessment>());
+        costRange.put("6", new ArrayList<PropertyAssessment>());
+        costRange.put("7", new ArrayList<PropertyAssessment>());
+        properties.parallelStream()
+                .forEach(property -> {
+                    int value = property.getAssessedValue();
+
+                        if (value >= 2500000) {
+                            costRange.get("7").add(property);
+                        } else if (value >= 1000000) {
+                            costRange.get("6").add(property);
+                        } else if (value >= 750000) {
+                            costRange.get("5").add(property);
+                        } else if (value >= 500000) {
+                            costRange.get("4").add(property);
+                        } else if (value >= 250000) {
+                            costRange.get("3").add(property);
+                        } else if (value >= 100000) {
+                            costRange.get("2").add(property);
+                        } else if (value >= 0) {
+                            costRange.get("1").add(property);
+                        }
+
+                });
+
+    }
+
+
+    @Override
     public List<PropertyAssessment> getByAddress(String address) {
         String finalAddress = address.toUpperCase();
 
