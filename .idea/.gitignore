@@ -11,4 +11,6 @@
 /resources/
 *.xml
 
+.idea/libraries/lib.xml
+.idea/libraries/libs.xml
 
