@@ -56,18 +56,43 @@ public class UserInterface extends Application {
 
 
 
+
+
+
+
     @Override
     public void start(final Stage primaryStage) {
 
         //create list for legend labels
         List<LegendLabel> legendLabels = new ArrayList<>();
         legendWindow[0] = spawnLegend(primaryStage, legendLabels);
+        legendWindow[0].close();
 
         try {
             dao = new CsvPropertyAssessmentDAO();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
+
+        //filling legend label for the colour gradient
+        List<Color> costColors = new ArrayList<>();
+        costColors.add(Color.rgb(128, 8, 0));
+        costColors.add(Color.rgb(255, 16, 0));
+        costColors.add(Color.rgb(250, 101, 15));
+        costColors.add(Color.rgb(255, 221, 0));
+        costColors.add(Color.rgb(132, 255, 0));
+        costColors.add(Color.rgb(16, 247, 0));
+        costColors.add(Color.rgb(0, 112, 4));
+        String[] ranges = {"$0 - $100,000", "$100,000 - $250,000", "$250,000 - $500,000", "$500,000 - $750,000",
+                "$750,000 - $1,000,000", "$1,000,000 - $2,500,000", "$2,500,000+"};
+
+        int zz = 0;
+        for (Color color : costColors) {
+            legendLabels.add(new LegendLabel(ranges[zz], color));
+            zz++;
+        }
+
 
         //table button
         Button tableButton = new Button("Open Table");
@@ -184,6 +209,13 @@ public class UserInterface extends Application {
         allClas.setLayoutX(10);
         allClas.setLayoutY(380);
 
+        //button for clearing the dots
+        Button mapResetButton = new Button("Clear Map");
+        mapResetButton.setPrefWidth(80);
+        mapResetButton.setStyle("-fx-font-weight: bold; -fx-text-fill: #483D8B; -fx-border-color: #540054; -fx-border-width: 1.5px;" );
+        mapResetButton.setLayoutX(240);
+        mapResetButton.setLayoutY(560);
+
 
         //Assessed Value Range label
         final Label labelValue = new Label("Assessed Value Range:");
@@ -212,6 +244,8 @@ public class UserInterface extends Application {
 
 
         priceDropDown.setOnAction(event -> {
+            graphicsOverlay.getGraphics().clear();
+            legendWindow[0].close();
 
             if(neightbourDropDown.getValue() != null) {
                 neightbourDropDown.getSelectionModel().clearSelection();
@@ -226,21 +260,13 @@ public class UserInterface extends Application {
 
             dao.getCostRange(costRange);
 
-            Random rand = new Random();
             int i = 0;
-            Integer[][] color = new Integer[7][3];
-            color[0] = new Integer[]{237, 41, 56}; //dark red
-            color[1] = new Integer[]{255, 140, 1}; //light red
-            color[2] = new Integer[]{255, 231, 51}; //orange
-            color[3] = new Integer[]{123, 182, 98}; //yellow mustard
-            color[4] = new Integer[]{2, 78, 27}; //lime green
-            color[5] = new Integer[]{0, 0, 255}; //green
-            color[6] = new Integer[]{102, 0, 153}; //dark green
             for( String key : costRange.keySet()){
-                graphicsOverlay.getGraphics().addAll(getOverlayForProps(costRange.get(key),
-                        Color.rgb((color[i][0]), (color[i][1]), (color[i][2]))));
+                graphicsOverlay.getGraphics().addAll(getOverlayForProps(costRange.get(key), costColors.get(i)));
                 i = i + 1;
             }
+
+            legendWindow[0] = spawnLegend(primaryStage, legendLabels);
 
 
         });
@@ -296,6 +322,11 @@ public class UserInterface extends Application {
 
         //todo spacing for new buttons REMOVE ADDVBOX3========================================================
 
+
+        mapResetButton.setOnAction(event -> {
+            graphicsOverlay.getGraphics().clear();
+            legendWindow[0].close();
+        });
 
 
         statButton.setOnAction(event -> {
@@ -616,7 +647,7 @@ public class UserInterface extends Application {
         root.getChildren().add(labelwar);
         root.getChildren().add(wardDropDown);
         root.getChildren().add(priceDropDown);
-        root.getChildren().addAll(allWard, allNei, allClas);
+        root.getChildren().addAll(allWard, allNei, allClas, mapResetButton);
 
         //TODO ADD DROPDOWNS TO HERE SAM, it is possible to do .addAll(var, var, var);
 
