@@ -179,31 +179,19 @@ public class UserInterface extends Application {
         wardDropDown.setLayoutY(200);
 
 
-        Button priceDropDown = new Button("Show Prices");
+        Button priceDropDown = new Button("Show All");
         priceDropDown.setPrefWidth(200);
         priceDropDown.setStyle("-fx-font-weight: bold; -fx-text-fill: #483D8B; -fx-border-color: #540054; -fx-border-width: 1.5px;" );
         priceDropDown.setLayoutX(10);
-        priceDropDown.setLayoutY(240);
+        priceDropDown.setLayoutY(280);
 
 
         //buttons for all search
-        Button allWard = new Button("All Wards");
-        allWard.setPrefWidth(200);
-        allWard.setStyle("-fx-font-weight: bold; -fx-text-fill: #483D8B; -fx-border-color: #540054; -fx-border-width: 1.5px;" );
-        allWard.setLayoutX(10);
-        allWard.setLayoutY(300);
-
-        Button allNei = new Button("All Neighbourhoods");
-        allNei.setPrefWidth(200);
-        allNei.setStyle("-fx-font-weight: bold; -fx-text-fill: #483D8B; -fx-border-color: #540054; -fx-border-width: 1.5px;" );
-        allNei.setLayoutX(10);
-        allNei.setLayoutY(340);
-
-        Button allClas = new Button("All Assessment Classes");
-        allClas.setPrefWidth(200);
-        allClas.setStyle("-fx-font-weight: bold; -fx-text-fill: #483D8B; -fx-border-color: #540054; -fx-border-width: 1.5px;" );
-        allClas.setLayoutX(10);
-        allClas.setLayoutY(380);
+        Button busStops = new Button("Show Bus Stops");
+        busStops.setPrefWidth(200);
+        busStops.setStyle("-fx-font-weight: bold; -fx-text-fill: #483D8B; -fx-border-color: #540054; -fx-border-width: 1.5px;" );
+        busStops.setLayoutX(10);
+        busStops.setLayoutY(340);
 
         //button for clearing the dots
         Button mapResetButton = new Button("Clear Map");
@@ -232,7 +220,7 @@ public class UserInterface extends Application {
         */
 
         //buttons for search and reset
-        Button SearchButton = new Button("Search"); //This is just slightly bigger
+        Button SearchButton = new Button("Search Single Choice"); //This is just slightly bigger
         SearchButton.setPrefWidth(200);
         SearchButton.setStyle("-fx-font-weight: bold; -fx-text-fill: #483D8B; -fx-border-color: #540054; -fx-border-width: 1.5px;" );
         SearchButton.setLayoutX(10);
@@ -273,10 +261,11 @@ public class UserInterface extends Application {
             String nei = neightbourDropDown.getValue();
             String asses = assessmentClassDropDown.getValue();
             String ward = wardDropDown.getValue();
-            List<PropertyAssessment> somethingCool = new ArrayList<>();
-            HashMap<String, List<PropertyAssessment>> costRange = new HashMap<>();
+
 
             if(nei != null){
+                List<PropertyAssessment> somethingCool = new ArrayList<>();
+                HashMap<String, List<PropertyAssessment>> costRange = new HashMap<>();
                 somethingCool = dao.getByNeighbourhood(nei);
                 dao.getCostOfList(costRange, somethingCool);
                 int i = 0;
@@ -286,6 +275,8 @@ public class UserInterface extends Application {
                 }
                 legendWindow[0] = spawnLegend(primaryStage, legendLabels);
             } else if (asses != null) {
+                List<PropertyAssessment> somethingCool = new ArrayList<>();
+                HashMap<String, List<PropertyAssessment>> costRange = new HashMap<>();
                 somethingCool = dao.getByAssessmentClass(asses);
                 dao.getCostOfList(costRange, somethingCool);
                 int i = 0;
@@ -295,6 +286,8 @@ public class UserInterface extends Application {
                 }
                 legendWindow[0] = spawnLegend(primaryStage, legendLabels);
             } else if (ward != null) {
+                List<PropertyAssessment> somethingCool = new ArrayList<>();
+                HashMap<String, List<PropertyAssessment>> costRange = new HashMap<>();
                 somethingCool = dao.getPropertiesInWard(ward);
                 dao.getCostOfList(costRange, somethingCool);
                 int i = 0;
@@ -333,7 +326,14 @@ public class UserInterface extends Application {
             }
         });
 
-
+        busStops.setOnAction(event -> {
+            try {
+                List<BusStops> busStop = ReadBusStops.readCSV();
+                graphicsOverlay.getGraphics().addAll(getOverlayForBus(busStop, Color.BLUE));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
 
         mapResetButton.setOnAction(event -> {
             graphicsOverlay.getGraphics().clear();
@@ -650,7 +650,6 @@ public class UserInterface extends Application {
         root.getChildren().add(tableButton);
         root.getChildren().add(statButton);
         root.getChildren().add(mapView);
-        //root.setLeft(button);
         root.getChildren().add(assessmentClassDropDown);
         root.getChildren().add(neightbourDropDown);
         root.getChildren().add(SearchButton);
@@ -659,9 +658,8 @@ public class UserInterface extends Application {
         root.getChildren().add(labelwar);
         root.getChildren().add(wardDropDown);
         root.getChildren().add(priceDropDown);
-        root.getChildren().addAll(allWard, allNei, allClas, mapResetButton);
+        root.getChildren().addAll(busStops, mapResetButton);
 
-        //TODO ADD DROPDOWNS TO HERE SAM, it is possible to do .addAll(var, var, var);
 
         Scene scene = new Scene(root, 1250, 600);
 

@@ -225,7 +225,7 @@ public class CsvPropertyAssessmentDAO implements PropertyAssessmentDAO {
         costRange.put("5", new ArrayList<PropertyAssessment>());
         costRange.put("6", new ArrayList<PropertyAssessment>());
         costRange.put("7", new ArrayList<PropertyAssessment>());
-        properties.parallelStream()
+        properties.stream()
                 .forEach(property -> {
                     int value = property.getAssessedValue();
 
@@ -258,7 +258,7 @@ public class CsvPropertyAssessmentDAO implements PropertyAssessmentDAO {
         costRange.put("5", new ArrayList<PropertyAssessment>());
         costRange.put("6", new ArrayList<PropertyAssessment>());
         costRange.put("7", new ArrayList<PropertyAssessment>());
-        addLst.parallelStream()
+        addLst.stream()
                 .forEach(property -> {
                     int value = property.getAssessedValue();
 
