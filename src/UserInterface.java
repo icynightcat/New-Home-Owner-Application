@@ -178,7 +178,7 @@ public class UserInterface extends Application {
         wardDropDown.setLayoutX(10);
         wardDropDown.setLayoutY(200);
 
-
+        //all button
         Button priceDropDown = new Button("Show All");
         priceDropDown.setPrefWidth(200);
         priceDropDown.setStyle("-fx-font-weight: bold; -fx-text-fill: #483D8B; -fx-border-color: #540054; -fx-border-width: 1.5px;" );

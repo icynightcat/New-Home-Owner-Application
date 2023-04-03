@@ -217,7 +217,7 @@ public class CsvPropertyAssessmentDAO implements PropertyAssessmentDAO {
     //each value is from 1 to 7
     public void getCostRange(HashMap<String, List<PropertyAssessment>> costRange) {
 
-
+        //no parrallel stream
         costRange.put("1", new ArrayList<PropertyAssessment>());
         costRange.put("2", new ArrayList<PropertyAssessment>());
         costRange.put("3", new ArrayList<PropertyAssessment>());
