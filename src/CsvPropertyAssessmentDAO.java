@@ -249,6 +249,38 @@ public class CsvPropertyAssessmentDAO implements PropertyAssessmentDAO {
 
     }
 
+    @Override
+    public void getCostOfList(HashMap<String, List<PropertyAssessment>> costRange, List<PropertyAssessment> addLst) {
+        costRange.put("1", new ArrayList<PropertyAssessment>());
+        costRange.put("2", new ArrayList<PropertyAssessment>());
+        costRange.put("3", new ArrayList<PropertyAssessment>());
+        costRange.put("4", new ArrayList<PropertyAssessment>());
+        costRange.put("5", new ArrayList<PropertyAssessment>());
+        costRange.put("6", new ArrayList<PropertyAssessment>());
+        costRange.put("7", new ArrayList<PropertyAssessment>());
+        addLst.parallelStream()
+                .forEach(property -> {
+                    int value = property.getAssessedValue();
+
+                    if (value >= 2500000) {
+                        costRange.get("7").add(property);
+                    } else if (value >= 1000000) {
+                        costRange.get("6").add(property);
+                    } else if (value >= 750000) {
+                        costRange.get("5").add(property);
+                    } else if (value >= 500000) {
+                        costRange.get("4").add(property);
+                    } else if (value >= 250000) {
+                        costRange.get("3").add(property);
+                    } else if (value >= 100000) {
+                        costRange.get("2").add(property);
+                    } else if (value >= 0) {
+                        costRange.get("1").add(property);
+                    }
+
+                });
+    }
+
 
     @Override
     public List<PropertyAssessment> getByAddress(String address) {

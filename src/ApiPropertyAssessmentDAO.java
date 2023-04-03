@@ -245,4 +245,9 @@ public class ApiPropertyAssessmentDAO implements PropertyAssessmentDAO {
     public void getCostRange(HashMap<String, List<PropertyAssessment>> costRange) {
 
     }
+
+    @Override
+    public void getCostOfList(HashMap<String, List<PropertyAssessment>> costRange,  List<PropertyAssessment> addLst) {
+
+    }
 }

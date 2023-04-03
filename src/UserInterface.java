@@ -133,10 +133,6 @@ public class UserInterface extends Application {
         mapView.getGraphicsOverlays().add(graphicsOverlay);
 
 
-
-        //todo remove addvbox 3 from the functions as it does nothing==================================
-
-
         //add separator to split find and select
         Separator separator1 = new Separator();
 
@@ -267,7 +263,7 @@ public class UserInterface extends Application {
             }
 
             legendWindow[0] = spawnLegend(primaryStage, legendLabels);
-
+            //add the colors to the legend
 
         });
 
@@ -278,18 +274,35 @@ public class UserInterface extends Application {
             String asses = assessmentClassDropDown.getValue();
             String ward = wardDropDown.getValue();
             List<PropertyAssessment> somethingCool = new ArrayList<>();
+            HashMap<String, List<PropertyAssessment>> costRange = new HashMap<>();
+
             if(nei != null){
                 somethingCool = dao.getByNeighbourhood(nei);
-                graphicsOverlay.getGraphics().addAll(getOverlayForProps(somethingCool, Color.BLUE));
-                legendWindow[0] = spawnLegend(primaryStage, Arrays.asList(new LegendLabel(nei, Color.BLUE)));
+                dao.getCostOfList(costRange, somethingCool);
+                int i = 0;
+                for( String key : costRange.keySet()){
+                    graphicsOverlay.getGraphics().addAll(getOverlayForProps(costRange.get(key), costColors.get(i)));
+                    i = i + 1;
+                }
+                legendWindow[0] = spawnLegend(primaryStage, legendLabels);
             } else if (asses != null) {
                 somethingCool = dao.getByAssessmentClass(asses);
-                graphicsOverlay.getGraphics().addAll(getOverlayForProps(somethingCool, Color.RED));
-                legendWindow[0] = spawnLegend(primaryStage, Arrays.asList(new LegendLabel(asses, Color.RED)));
+                dao.getCostOfList(costRange, somethingCool);
+                int i = 0;
+                for( String key : costRange.keySet()){
+                    graphicsOverlay.getGraphics().addAll(getOverlayForProps(costRange.get(key), costColors.get(i)));
+                    i = i + 1;
+                }
+                legendWindow[0] = spawnLegend(primaryStage, legendLabels);
             } else if (ward != null) {
                 somethingCool = dao.getPropertiesInWard(ward);
-                graphicsOverlay.getGraphics().addAll(getOverlayForProps(somethingCool, Color.GREEN));
-                legendWindow[0] = spawnLegend(primaryStage, Arrays.asList(new LegendLabel(ward, Color.GREEN)));
+                dao.getCostOfList(costRange, somethingCool);
+                int i = 0;
+                for( String key : costRange.keySet()){
+                    graphicsOverlay.getGraphics().addAll(getOverlayForProps(costRange.get(key), costColors.get(i)));
+                    i = i + 1;
+                }
+                legendWindow[0] = spawnLegend(primaryStage, legendLabels);
 
             }  //money
         });
@@ -320,7 +333,6 @@ public class UserInterface extends Application {
             }
         });
 
-        //todo spacing for new buttons REMOVE ADDVBOX3========================================================
 
 
         mapResetButton.setOnAction(event -> {

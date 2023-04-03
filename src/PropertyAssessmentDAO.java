@@ -91,4 +91,6 @@ public interface PropertyAssessmentDAO {
 
     void getCostRange(HashMap<String, List<PropertyAssessment>> costRange);
 
+    void getCostOfList(HashMap<String, List<PropertyAssessment>> costRange, List<PropertyAssessment> addLst);
+
 }
