@@ -217,7 +217,7 @@ public class CsvPropertyAssessmentDAO implements PropertyAssessmentDAO {
     //each value is from 1 to 7
     public void getCostRange(HashMap<String, List<PropertyAssessment>> costRange) {
 
-
+        //no parrallel stream
         costRange.put("1", new ArrayList<PropertyAssessment>());
         costRange.put("2", new ArrayList<PropertyAssessment>());
         costRange.put("3", new ArrayList<PropertyAssessment>());
@@ -225,7 +225,7 @@ public class CsvPropertyAssessmentDAO implements PropertyAssessmentDAO {
         costRange.put("5", new ArrayList<PropertyAssessment>());
         costRange.put("6", new ArrayList<PropertyAssessment>());
         costRange.put("7", new ArrayList<PropertyAssessment>());
-        properties.parallelStream()
+        properties.stream()
                 .forEach(property -> {
                     int value = property.getAssessedValue();
 
@@ -258,7 +258,7 @@ public class CsvPropertyAssessmentDAO implements PropertyAssessmentDAO {
         costRange.put("5", new ArrayList<PropertyAssessment>());
         costRange.put("6", new ArrayList<PropertyAssessment>());
         costRange.put("7", new ArrayList<PropertyAssessment>());
-        addLst.parallelStream()
+        addLst.stream()
                 .forEach(property -> {
                     int value = property.getAssessedValue();
 
