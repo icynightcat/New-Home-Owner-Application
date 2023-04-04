@@ -347,8 +347,9 @@ public class UserInterface extends Application {
         });
 
 
+        //This code runs once the get statistics button is pressed
         statButton.setOnAction(event -> {
-            //Initialize window
+            //Initialize the window
             BorderPane thirdLayout = new BorderPane();
             Scene thirdScene = new Scene(thirdLayout, 1100, 600);
             Stage newWindow2 = new Stage();
@@ -366,10 +367,10 @@ public class UserInterface extends Application {
             newWindow2.setX(primaryStage.getX() + 50);
             newWindow2.setY(primaryStage.getY() + 25);
 
-            //making the side stuff
+            //making the side vbox
             thirdLayout.setLeft(addVBox2(newWindow2));
 
-            //making the bar chart
+            //making the bar chart v box
             thirdLayout.setCenter(addVBox());
 
             // show window
@@ -679,11 +680,11 @@ public class UserInterface extends Application {
      * @return a v box with a bar chart
      */
     private Node addVBox() {
+        //initializes the new v box and sets the spacing and alignment of materials in the vbox
         VBox bar = new VBox();
         bar.setPadding(new Insets(10));
         bar.setSpacing(8);
         bar.setAlignment(Pos.CENTER);
-        //bar.setStyle("-fx-background-color: #D8BFD8;"); //thistle
 
         //this creates title for bar graph
         Label chartTitle = new Label("Assessment Values in Neighbourhood");
@@ -695,6 +696,7 @@ public class UserInterface extends Application {
         CategoryAxis x = new CategoryAxis();
         x.setLabel("Assessment Values");
         x.setAnimated(false);
+
         //y axis
         NumberAxis y = new NumberAxis();
         y.setLabel("Count");
@@ -703,7 +705,7 @@ public class UserInterface extends Application {
         bc = new BarChart(x, y);
         bc.setMaxHeight(550);
 
-        //adding bar chart to vbox
+        //adding bar chart to the vbox
         bar.getChildren().add(bc);
 
         return bar;
@@ -716,12 +718,12 @@ public class UserInterface extends Application {
      */
     private Node addVBox2(Stage newWindow2) {
         ObservableList<String> neighbourhoodDisplay;
-
+        //initializes the new v box and sets spacing for items in the v box
         VBox menu = new VBox();
         menu.setPadding(new Insets(15));
         menu.setSpacing(8);
 
-        //making list view of neighbourhoods
+        //making the title for the list view of neighbourhoods
         Label tableTitle = new Label("Edmonton Neighbourhoods");
         tableTitle.setFont(new Font("Arial", 15));
         tableTitle.setStyle("-fx-font-weight: bold; -fx-text-fill: #540054");
@@ -730,36 +732,45 @@ public class UserInterface extends Application {
         //making the list view
         List<String> neighbourhoods = new ArrayList<String>();
 
+        //calling the csv property assessment dao
         try {
             dao = new CsvPropertyAssessmentDAO("Property_Assessment_Data_2022.csv");
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+        //gets a list fo neighbourhoods
         List<String> properties = dao.getNeighbourhoodLists();
         neighbourhoodDisplay = observableArrayList(properties);
 
+        //making the list view anf populating it with neighbourhoods from the neighbourhood list
         final ListView listView = new ListView(neighbourhoodDisplay);
         listView.setPrefSize(200, 500);
         listView.setEditable(true);
 
         menu.getChildren().add(listView);
 
-        //send neighbourhood button
+        //making the check neighbourhood button
         Button submit = new Button("Check Neighbourhood");
         submit.setMaxWidth(Double.MAX_VALUE);
         submit.setFont(new Font("Arial",12));
         submit.setStyle("-fx-font-weight: bold; -fx-text-fill: #483D8B; -fx-border-color: #483D8B; -fx-border-width: 1.5px;" );
         menu.getChildren().add(submit);
 
+
         EventHandler<ActionEvent> showNeighbourhoods =
                 E -> {
+                    //obtains the chosen neighbourhood
                     Object selectedItem = listView.getSelectionModel().getSelectedItem();
                     chosenNeighbourhood = selectedItem.toString();
                     System.out.println(chosenNeighbourhood);
 
+                    //makes an empty hash map so that you can get assessment values for a chosen neighbourhood
                     HashMap<String, Integer> assessmentsValues;
 
+                    //clears the bar chart in case there is something loaded already
                     bc.getData().clear();
+
+                    //actually plots the graph after grabbing values from the hash map with assessment values ranges of a chosen neighbourhood
                     bc.layout();
                     XYChart.Series<String, Integer> series1 = new XYChart.Series<>();
                     assessmentsValues = dao.makeNeighbourhoodAssessments(chosenNeighbourhood);
@@ -770,7 +781,6 @@ public class UserInterface extends Application {
                             XYChart.Data<String, Integer> b = new XYChart.Data<>(ranges, value);
                             Label cx = new Label(String.valueOf(value));
                             series1.getData().add(b);
-                            //series1.setName(String.valueOf(value));
                         }
                     }
                     bc.getData().add(series1);
