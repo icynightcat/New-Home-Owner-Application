@@ -41,6 +41,15 @@ import java.util.*;
 
 import static javafx.collections.FXCollections.observableArrayList;
 
+/*
+CMPT 305 - Milestone 3
+Dr. Indratmo
+
+Group:
+Ayesha Khan - 1768136
+Samuel Brownlee - 3072293
+Zachary Swensrude - 3087997
+ */
 
 public class UserInterface extends Application {
 
@@ -55,25 +64,21 @@ public class UserInterface extends Application {
     final Stage[] legendWindow = new Stage[1];
 
 
-
-
-
-
-
     @Override
     public void start(final Stage primaryStage) {
 
         //create list for legend labels
         List<LegendLabel> legendLabels = new ArrayList<>();
+        //initialize legend window
         legendWindow[0] = spawnLegend(primaryStage, legendLabels);
         legendWindow[0].close();
 
+        //set dao to CSV for map usage
         try {
             dao = new CsvPropertyAssessmentDAO();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
 
         //filling legend label for the colour gradient
         List<Color> costColors = new ArrayList<>();
@@ -86,13 +91,12 @@ public class UserInterface extends Application {
         costColors.add(Color.rgb(0, 112, 4));
         String[] ranges = {"$0 - $100,000", "$100,000 - $250,000", "$250,000 - $500,000", "$500,000 - $750,000",
                 "$750,000 - $1,000,000", "$1,000,000 - $2,500,000", "$2,500,000+"};
-
+        //adding the colours and ranges to legend labels
         int zz = 0;
         for (Color color : costColors) {
             legendLabels.add(new LegendLabel(ranges[zz], color));
             zz++;
         }
-
 
         //table button
         Button tableButton = new Button("Open Table");
@@ -110,12 +114,9 @@ public class UserInterface extends Application {
 
 
         //map stuff
-        //create map ---------------------------------------------------------------------------------------------------
+        //set api key
         String apiKey = "AAPK9bcef3a7d7e94479aa9e61bc556247083Yorp1DmW9m8Ds1n71r4wSLxUXs8REDU0p_iQeGIhIuUGoZAdoXWroq2OXgjF3L-";
-        //String apiKey = "AAPK2d72f63e78bf4080b08944c50bf8ad75ruhLpRbSL4KyC3vqDiqShUvlC6CbTgAisL18IPcVL07mroGcMAjoBDY_wru-ygRe";
-       // ArcGISRuntimeEnvironment.setInstallDirectory("C:\\Users\\ayesh\\Desktop\\arcgis-maps-sdk-java-200.0.0");
         ArcGISRuntimeEnvironment.setApiKey(apiKey);
-
 
         //create mapView and map
         MapView mapView = new MapView();
@@ -132,17 +133,13 @@ public class UserInterface extends Application {
         GraphicsOverlay graphicsOverlay = new GraphicsOverlay();
         mapView.getGraphicsOverlays().add(graphicsOverlay);
 
-
-        //add separator to split find and select
-        Separator separator1 = new Separator();
-
-
-        //add Neighbourhood drop down
+        //add Neighbourhood label
         Label labelNei = new Label("Neighbourhood:");
         labelNei.setStyle("-fx-font-weight: bold; -fx-text-fill: #483D8B; -fx-border-width: 1.5px;" );
         labelNei.setLayoutX(10);
         labelNei.setLayoutY(130);
 
+        //create neighbourhood dropdown
         ComboBox<String> neightbourDropDown = new ComboBox<>();
         neightbourDropDown.setItems(FXCollections.observableList(dao.getNeighbourhoodLists()));
         neightbourDropDown.setPrefWidth(200);
@@ -150,13 +147,13 @@ public class UserInterface extends Application {
         neightbourDropDown.setLayoutX(10);
         neightbourDropDown.setLayoutY(150);
 
-
-        //add assessment class drop down
+        //add assessment class label
         Label labelAsCla = new Label("Assessment Class:");
         labelAsCla.setStyle("-fx-font-weight: bold; -fx-text-fill: #483D8B; -fx-border-width: 1.5px;" );
         labelAsCla.setLayoutX(10);
         labelAsCla.setLayoutY(80);
 
+        //add assessment class drop down
         ComboBox<String> assessmentClassDropDown = new ComboBox<>();
         assessmentClassDropDown.setItems(FXCollections.observableList(dao.getAssessmentClasses()));
         assessmentClassDropDown.setPrefWidth(200);
@@ -165,12 +162,13 @@ public class UserInterface extends Application {
         assessmentClassDropDown.setLayoutY(100);
 
 
-        //add ward drop down
+        //add ward label
         Label labelwar = new Label("Ward:");
         labelwar.setStyle("-fx-font-weight: bold; -fx-text-fill: #483D8B; -fx-border-width: 1.5px;" );
         labelwar.setLayoutX(10);
         labelwar.setLayoutY(180);
 
+        //ward drop down
         ComboBox<String> wardDropDown = new ComboBox<>();
         wardDropDown.setItems(FXCollections.observableList(dao.getWards()));
         wardDropDown.setPrefWidth(200);
@@ -184,7 +182,6 @@ public class UserInterface extends Application {
         priceDropDown.setStyle("-fx-font-weight: bold; -fx-text-fill: #483D8B; -fx-border-color: #540054; -fx-border-width: 1.5px;" );
         priceDropDown.setLayoutX(10);
         priceDropDown.setLayoutY(280);
-
 
         //buttons for all search
         Button busStops = new Button("Show Bus Stops");
@@ -200,24 +197,9 @@ public class UserInterface extends Application {
         mapResetButton.setLayoutX(240);
         mapResetButton.setLayoutY(560);
 
-
         //Assessed Value Range label
         final Label labelValue = new Label("Assessed Value Range:");
         labelValue.setFont(Font.font("Times", 15));
-
-        /**
-        //Two boxes for min and max value
-        MinField = new TextField(); //min box
-        MinField.setPromptText("Min Value");
-        MaxField = new TextField(); //max box
-        MaxField.setPromptText("Max Value");
-        hBox1.setHgrow(MinField, Priority.ALWAYS);
-        MinField.setMaxWidth(Double.MAX_VALUE);
-        hBox1.setHgrow(MaxField, Priority.ALWAYS);
-        MaxField.setMaxWidth(Double.MAX_VALUE);
-        //add the text fields to the hbox
-        hBox1.getChildren().addAll(MinField, MaxField);
-        */
 
         //buttons for search and reset
         Button SearchButton = new Button("Search Single Choice"); //This is just slightly bigger
@@ -227,6 +209,7 @@ public class UserInterface extends Application {
         SearchButton.setLayoutY(10);
 
 
+        //on price dropdown selection we want to clear the other dropdowns
         priceDropDown.setOnAction(event -> {
             graphicsOverlay.getGraphics().clear();
             legendWindow[0].close();
@@ -242,19 +225,22 @@ public class UserInterface extends Application {
             }
             HashMap<String, List<PropertyAssessment>> costRange = new HashMap<>();
 
+            //then get the cost range for that cost range
             dao.getCostRange(costRange);
 
+            //and set the keys for the legend
             int i = 0;
             for( String key : costRange.keySet()){
                 graphicsOverlay.getGraphics().addAll(getOverlayForProps(costRange.get(key), costColors.get(i)));
                 i = i + 1;
             }
 
+            //then spawn the legend
             legendWindow[0] = spawnLegend(primaryStage, legendLabels);
-            //add the colors to the legend
 
         });
 
+        //search button click
         SearchButton.setOnAction(event -> {
             legendWindow[0].close();
             graphicsOverlay.getGraphics().clear();
@@ -262,44 +248,58 @@ public class UserInterface extends Application {
             String asses = assessmentClassDropDown.getValue();
             String ward = wardDropDown.getValue();
 
-
+            //check which one we want to search by and search by it
             if(nei != null){
-                List<PropertyAssessment> somethingCool = new ArrayList<>();
+                //initialize and get the properties in the neighbourhood
+                List<PropertyAssessment> somethingCool;
                 HashMap<String, List<PropertyAssessment>> costRange = new HashMap<>();
                 somethingCool = dao.getByNeighbourhood(nei);
+                //get cost list
                 dao.getCostOfList(costRange, somethingCool);
                 int i = 0;
+                //add props to overlay
                 for( String key : costRange.keySet()){
                     graphicsOverlay.getGraphics().addAll(getOverlayForProps(costRange.get(key), costColors.get(i)));
                     i = i + 1;
                 }
+                //spawn legend
                 legendWindow[0] = spawnLegend(primaryStage, legendLabels);
             } else if (asses != null) {
-                List<PropertyAssessment> somethingCool = new ArrayList<>();
+                //initialize and get the properties in the assessment class
+                List<PropertyAssessment> somethingCool;
                 HashMap<String, List<PropertyAssessment>> costRange = new HashMap<>();
                 somethingCool = dao.getByAssessmentClass(asses);
+                //get cost list for the class
                 dao.getCostOfList(costRange, somethingCool);
                 int i = 0;
+                //add props to overlay
                 for( String key : costRange.keySet()){
                     graphicsOverlay.getGraphics().addAll(getOverlayForProps(costRange.get(key), costColors.get(i)));
                     i = i + 1;
                 }
+                //spawn legend
                 legendWindow[0] = spawnLegend(primaryStage, legendLabels);
             } else if (ward != null) {
-                List<PropertyAssessment> somethingCool = new ArrayList<>();
+                //initialize and get the properties in the ward
+                List<PropertyAssessment> somethingCool;
                 HashMap<String, List<PropertyAssessment>> costRange = new HashMap<>();
                 somethingCool = dao.getPropertiesInWard(ward);
+                //get cost list for the ward
                 dao.getCostOfList(costRange, somethingCool);
                 int i = 0;
+                //add props to overlay
                 for( String key : costRange.keySet()){
                     graphicsOverlay.getGraphics().addAll(getOverlayForProps(costRange.get(key), costColors.get(i)));
                     i = i + 1;
                 }
+                //spawn legend
                 legendWindow[0] = spawnLegend(primaryStage, legendLabels);
 
-            }  //money
+            }
         });
 
+        //we want to clear the selection of all other dropdowns when a different one is selected
+        //clear assessment and ward if neighbourhood is clicked
         neightbourDropDown.setOnMouseClicked(actionEvent -> {
             if(assessmentClassDropDown.getValue() != null) {
                 assessmentClassDropDown.getSelectionModel().clearSelection();
@@ -308,6 +308,7 @@ public class UserInterface extends Application {
                 wardDropDown.getSelectionModel().clearSelection();
             }
         });
+        //clear neighbour and ward on assessment class select
         assessmentClassDropDown.setOnMouseClicked(actionEvent -> {
             if(neightbourDropDown.getValue() != null) {
                 neightbourDropDown.getSelectionModel().clearSelection();
@@ -317,6 +318,7 @@ public class UserInterface extends Application {
             }
 
         });
+        //clear neighbourhood and assessment class on ward select
         wardDropDown.setOnMouseClicked(actionEvent -> {
             if(neightbourDropDown.getValue() != null) {
                 neightbourDropDown.getSelectionModel().clearSelection();
@@ -325,17 +327,21 @@ public class UserInterface extends Application {
                 assessmentClassDropDown.getSelectionModel().clearSelection();
             }
         });
-
+        //on bus stop click
         busStops.setOnAction(event -> {
             try {
+                //get bus stop list
                 List<BusStops> busStop = ReadBusStops.readCSV();
+                //add them to the graphics overlay in blue
                 graphicsOverlay.getGraphics().addAll(getOverlayForBus(busStop, Color.BLUE));
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         });
 
+        //on map reset button click
         mapResetButton.setOnAction(event -> {
+            //clear the graphics off the map and close the legend window
             graphicsOverlay.getGraphics().clear();
             legendWindow[0].close();
         });
@@ -666,53 +672,6 @@ public class UserInterface extends Application {
         primaryStage.setScene(scene);
         root.setStyle("-fx-background-color: #F8F8FF;");
         primaryStage.show();
-
-        /*
-        //Example for the legend usage -----------------------------
-
-        //this is how I have to initialize it, so I can access it in a button (idk its weird)
-        legendWindow[0] = spawnLegend(primaryStage, legendLabels);
-        //call legendWindow.close() before changing the legend and making a new one
-        Button closeLegendButton = new Button("Close Legend");
-        closeLegendButton.setLayoutY(330);
-        closeLegendButton.setLayoutX(1100);
-        root.getChildren().add(closeLegendButton);
-        closeLegendButton.setOnAction(event -> {
-            //you have to use it kinda weird to use it in the button
-            legendWindow[0].close();
-
-            legendWindow[0] = spawnLegend(primaryStage, Arrays.asList(new LegendLabel("new", Color.PINK)));
-        } );
-        //Example for the legend usage -----------------------------
-
-        //testing adding properties and add bus to map
-        */
-
-        /*
-        try {
-            dao = new CsvPropertyAssessmentDAO();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        Random rand = new Random();
-
-        for (String assClass : dao.getAssessmentClasses()){
-            List<PropertyAssessment> props = dao.getByAssessmentClass(assClass);
-
-            //function that takes a list of property assessments and a colour and adds them as points to a graphics overlay
-            graphicsOverlay.getGraphics().addAll(getOverlayForProps(props, Color.rgb(rand.nextInt(255), rand.nextInt(255), rand.nextInt(255))));
-        }
-
-        try {
-            List<BusStops> busStops = ReadBusStops.readCSV();
-            graphicsOverlay.getGraphics().addAll(getOverlayForBus(busStops, Color.ORANGE));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-         */
-        //end testing
-
 
     }
 
