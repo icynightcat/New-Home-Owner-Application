@@ -314,16 +314,11 @@ public class CsvPropertyAssessmentDAO implements PropertyAssessmentDAO {
 
     @Override
     public HashMap<String, Integer> makeNeighbourhoodAssessments(String neighbourhood){
-        String finalNeighbourhood = neighbourhood.toUpperCase();
+        //String finalNeighbourhood = neighbourhood.toUpperCase();
         List<PropertyAssessment> filteredNeighbourhoods = new ArrayList<>();
         HashMap<String, Integer> assessmentsValues = new LinkedHashMap<>();
 
         filteredNeighbourhoods = this.getByNeighbourhood(neighbourhood);
-        /*for (int i = 0; i < properties.size(); i++) { //loop through the list and if the neighbourhood matches, then put it in the new list
-            if (properties.get(i).getNeighbourhood().getNeighbourhood().equalsIgnoreCase(neighbourhood)) {
-                filteredNeighbourhoods.add(properties.get(i));
-            }
-        }*/
 
         int testN = 0; // a temp for the assessed value
         int maxN = filteredNeighbourhoods.get(0).getAssessedValue(); //sets the assessed value to maxN of the first property in the list
@@ -333,8 +328,7 @@ public class CsvPropertyAssessmentDAO implements PropertyAssessmentDAO {
                 maxN = testN; //set it as the new max value
             }
         }
-
-        int rangeBWNumbers = maxN/15;
+        int rangeBWNumbers = maxN/15; //divide the max value by 15 to get 15 ranges
 
         int count1st= 0, count2nd = 0, countThird = 0, countFourth = 0, countFifth = 0, countSixth = 0,
                 countSeventh  = 0, countEight = 0, countNine = 0, countTen = 0, count11 = 0, count12 = 0,
